@@ -12,40 +12,42 @@ import "./index.css";
 import ClubPage from "./clubpage";
 import ClubChatRoom from "./clubchatroom";
 import CreateFanClub from "./createFanClub";
-import Home from "./home";
+import DefaultPreview from "./defaultPreview";
+import ProfilePage from './profilePage'
 
 const routes = [
   {
     path: "",
     exact: true,
     main: () => (
-      <Home title="Home" urlEndpoint="#" tags={["Followed by You"]} />
+      <DefaultPreview title="Home" urlEndpoint="#" tags={["Followed by You"]} />
     ),
   },
   {
     path: "/explore",
-    main: () => <Home title="Explore" urlEndpoint="#" tags={["Recomended"]} />,
+    main: () => <DefaultPreview title="Explore" urlEndpoint="#" tags={["Recomended"]} />,
   },
   {
     path: "/made_by_me",
     main: () => (
-      <Home title="Made by Me" urlEndpoint="#" tags={["Recomended"]} />
+      <DefaultPreview title="Made by Me" urlEndpoint="#" tags={["Recomended"]} />
     ),
   },
   {
     path: "/recent",
-    main: () => <Home title="Recent" urlEndpoint="#" tags={["Recomended"]} />,
+    main: () => <DefaultPreview title="Recent" urlEndpoint="#" tags={["Recomended"]} />,
   },
   {
-    path: "/starred",
-    main: () => <Home title="Starred" urlEndpoint="#" tags={["Recomended"]} />,
+    path: "/liked",
+    main: () => <DefaultPreview title="Liked" urlEndpoint="#" tags={["Recomended"]} />,
   },
   {
     path: "/clubs/:clubId",
-    main: () => {
-      console.log("club page function");
-      return <ClubPage />;
-    },
+    main: () => <ClubPage />,
+  },
+  {
+    path: "/users/:userName",
+    main: () => <ProfilePage />,
   },
   {
     path: "/chats/:chatRoomId",
@@ -64,7 +66,7 @@ const routes = [
   },
 ];
 
-export default function Main({ isUserLoggedIn }) {
+export default function Main() {
   let { path, url } = useRouteMatch();
   useEffect(() => {}, []);
 
@@ -80,14 +82,23 @@ export default function Main({ isUserLoggedIn }) {
             {/* Column 1 */}
             <div className="col-1 bg-color-secondary p-0">
               <div className="py-3">
-                <div className="px-3 mb-3">
-                  <NavLink to={url} className="link" activeClassName="link-nav-active">
+                <div className="mb-3">
+                  <NavLink
+                    exact
+                    to={"/app"}
+                    className="link px-3 py-1"
+                    activeClassName="link-nav-active"
+                  >
                     <i className="fas fa-home icon-style"></i>
                     Home
                   </NavLink>
                 </div>
-                <div className="px-3 mb-3">
-                  <NavLink to={`${url}/explore`} className="link" activeClassName="link-nav-active">
+                <div className="mb-3">
+                  <NavLink
+                    to={`${url}/explore`}
+                    className="link px-3 py-1"
+                    activeClassName="link-nav-active"
+                  >
                     <i className="far fa-compass icon-style"></i> Explore
                   </NavLink>
                 </div>
@@ -97,23 +108,39 @@ export default function Main({ isUserLoggedIn }) {
                   <p>Fan Clubs</p>
                 </div>
                 <div className="my-1">
-                  <NavLink to={`${url}/made_by_me`} className="link fw-bold" activeClassName="link-active">
+                  <NavLink
+                    to={`${url}/made_by_me`}
+                    className="link fw-bold"
+                    activeClassName="link-active"
+                  >
                     Made by You
                   </NavLink>
                 </div>
                 <div className="my-1">
-                  <NavLink to={`${url}/recent`} className="link fw-bold" activeClassName="link-active">
+                  <NavLink
+                    to={`${url}/recent`}
+                    className="link fw-bold"
+                    activeClassName="link-active"
+                  >
                     Recent
                   </NavLink>
                 </div>
                 <div className="my-1">
-                  <NavLink to={`${url}/starred`} className="link fw-bold" activeClassName="link-active">
-                    Starred
+                  <NavLink
+                    to={`${url}/liked`}
+                    className="link fw-bold"
+                    activeClassName="link-active"
+                  >
+                    Liked
                   </NavLink>
                 </div>
               </div>
               <div className="position-absolute col-1" style={{ bottom: 0 }}>
-                <NavLink to="/create/fanclub" className="link" activeClassName="link-active">
+                <NavLink
+                  to={`${url}/create/fanclub`}
+                  className="link"
+                  activeClassName="link-active"
+                >
                   <div className="custom-border-top py-3 px-3">
                     <i className="fas fa-plus-circle icon-style fa-2x"></i>
                     New Club
@@ -169,7 +196,7 @@ export default function Main({ isUserLoggedIn }) {
                     style={{ borderRadius: "50%" }}
                     className="mx-2"
                   />
-                  <Link to="#" className="link-2">
+                  <Link to={`/app/users/${"Maayami"}`} className="link-2">
                     <p className="pt-1 px-1">Maayami</p>
                   </Link>
                   <button className="pt-1 px-2 bg-color-primary border-0">

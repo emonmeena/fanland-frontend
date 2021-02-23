@@ -15,17 +15,19 @@ export const useAuth = () => {
 function useProvideAuth() {
   const [user, setUser] = useState(null);
 
-  const signin = (callback) => {
-      setUser("Maayami");
-      callback();
+  const signin = (userName, callback) => {
+    setUser(userName);
+    callback();
   };
 
-  const signup = (email, password) => {};
+  const signup = (userName, callback) => {
+    console.log(userName);
+    callback();
+  };
 
   const signout = () => {
     setUser(false);
   };
-
 
   return {
     user,
@@ -35,6 +37,5 @@ function useProvideAuth() {
     signup,
 
     signout,
-
   };
 }

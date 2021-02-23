@@ -15,9 +15,23 @@
 }
 
 .club-image-div:hover {
-  opacity: 0.6;
+  opacity: 0.3;
 }
 
 .small-text {
   font-size: 14px;
+}
+.club-hover-options {
+  visibility: hidden;
+  color: white;
+  position: relative;
+  top: -58%;
+}
+
+.club-layout:hover .club-hover-options {
+  visibility: visible;
+}
+
+.icon-hover-scale:hover {
+  transform: scale(1.1);
 }

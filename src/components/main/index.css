@@ -71,8 +71,11 @@ p:hover {
   cursor: default;
 }
 
-.link-active {
+.link-nav-active {
   border-left: solid rgba(4, 202, 4, 0.801) 4px;
+  color: white;
+}
+.link-active {
   color: white;
 }
 

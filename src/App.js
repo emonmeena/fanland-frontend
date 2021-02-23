@@ -5,9 +5,10 @@ import {
   Redirect,
 } from "react-router-dom";
 import Main from "./components/main";
-import Auth from "./components/auth";
 import "./index.css";
 import { ProvideAuth, useAuth } from "./components/auth/useAuth";
+import SignIn from "./components/auth/signin";
+import SignUp from "./components/auth/signup";
 
 function App() {
   return (
@@ -21,8 +22,11 @@ function App() {
             <PrivateRoute path="/app">
               <Main />
             </PrivateRoute>
-            <Route to="/auth">
-              <Auth />
+            <Route path="/signin">
+              <SignIn />
+            </Route>
+            <Route path="/signup">
+              <SignUp />
             </Route>
           </Switch>
         </Router>
@@ -40,7 +44,7 @@ function PrivateRoute({ children, ...rest }) {
         return auth.user ? (
           children
         ) : (
-          <Redirect to={{ pathname: "/auth", state: { from: location } }} />
+          <Redirect to={{ pathname: "/signin", state: { from: location } }} />
         );
       }}
     ></Route>

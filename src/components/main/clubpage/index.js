@@ -8,7 +8,7 @@ export default function ClubPage() {
     <div className="px-3 pt-3">
       <div className="top-clubpage">
         <div className="row">
-          <div className="col-3 bg-color-tertiary">
+          <div className="col-2">
             <div
               className="clubpage-image-div"
               style={{
@@ -16,7 +16,7 @@ export default function ClubPage() {
               }}
             ></div>
           </div>
-          <div className="col-9 bg-color-secondary">
+          <div className="col-9">
             {clubId}
             <div>
               <Link to={`/app/chats/${clubId}`}>Open chats</Link>
