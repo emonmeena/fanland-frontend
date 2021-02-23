@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Form, Button } from "react-bootstrap";
 
 export default function CreateFanClub() {
-  const [clubName, setClubName] = useState("");
-  const [clubDescription, setClubDescription] = useState("");
-  const [clubImageURL, setClubImageURL] = useState("");
+  // const [clubName, setClubName] = useState("");
+  // const [clubDescription, setClubDescription] = useState("");
+  // const [clubImageURL, setClubImageURL] = useState("");
   return (
     <div>
       <div className="container py-5">

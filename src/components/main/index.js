@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   Link,
   useHistory,
-  Redirect,
   useRouteMatch,
+  NavLink,
 } from "react-router-dom";
-import { useAuth } from "../auth/useAuth";
 import "./index.css";
 import ClubPage from "./clubpage";
 import ClubChatRoom from "./clubchatroom";
@@ -19,19 +18,34 @@ const routes = [
   {
     path: "",
     exact: true,
-    main: () => <Home title="Home" endpoint="#" tags={["Followed by You"]} />,
+    main: () => (
+      <Home title="Home" urlEndpoint="#" tags={["Followed by You"]} />
+    ),
   },
   {
     path: "/explore",
-    main: () => <Home title="Explore" endpoint="#" tags={["Recomended"]} />,
+    main: () => <Home title="Explore" urlEndpoint="#" tags={["Recomended"]} />,
   },
   {
-    path: "/user_admin_clubs",
-    main: () => <h2>Your admin clubs</h2>,
+    path: "/made_by_me",
+    main: () => (
+      <Home title="Made by Me" urlEndpoint="#" tags={["Recomended"]} />
+    ),
+  },
+  {
+    path: "/recent",
+    main: () => <Home title="Recent" urlEndpoint="#" tags={["Recomended"]} />,
+  },
+  {
+    path: "/starred",
+    main: () => <Home title="Starred" urlEndpoint="#" tags={["Recomended"]} />,
   },
   {
     path: "/clubs/:clubId",
-    main: () => <ClubPage />,
+    main: () => {
+      console.log("club page function");
+      return <ClubPage />;
+    },
   },
   {
     path: "/chats/:chatRoomId",
@@ -67,10 +81,10 @@ export default function Main({ isUserLoggedIn }) {
             <div className="col-1 bg-color-secondary p-0">
               <div className="py-3">
                 <div className="px-3 mb-3">
-                  <Link to={url} className="link">
+                  <NavLink to={url} className="link">
                     <i className="fas fa-home icon-style"></i>
                     Home
-                  </Link>
+                  </NavLink>
                 </div>
                 <div className="px-3 mb-3">
                   <Link to={`${url}/explore`} className="link">
@@ -83,22 +97,19 @@ export default function Main({ isUserLoggedIn }) {
                   <p>Fan Clubs</p>
                 </div>
                 <div className="my-1">
-                  <Link to="#" className="link fw-bold">
+                  <Link to={`${url}/made_by_me`} className="link fw-bold">
                     Made by You
                   </Link>
                 </div>
                 <div className="my-1">
-                  <Link to="#" className="link fw-bold">
+                  <Link to={`${url}/recent`} className="link fw-bold">
                     Recent
                   </Link>
                 </div>
                 <div className="my-1">
-                  <Link to="#" className="link fw-bold">
+                  <Link to={`${url}/starred`} className="link fw-bold">
                     Starred
                   </Link>
-                </div>
-                <div>
-                  <Link className="link fw-bold"> </Link>
                 </div>
               </div>
               <div className="position-absolute col-1" style={{ bottom: 0 }}>
@@ -119,13 +130,13 @@ export default function Main({ isUserLoggedIn }) {
                       className="bg-color-primary border-0"
                       onClick={() => history.goBack()}
                     >
-                      <i class="fas fa-chevron-left icon-style-2"></i>
+                      <i className="fas fa-chevron-left icon-style-2"></i>
                     </button>
                     <button
                       className="bg-color-primary border-0"
                       onClick={() => history.goForward()}
                     >
-                      <i class="fas fa-chevron-right icon-style-2"></i>
+                      <i className="fas fa-chevron-right icon-style-2"></i>
                     </button>
                   </div>
                   <div className="mx-4">
@@ -171,7 +182,7 @@ export default function Main({ isUserLoggedIn }) {
                 {routes.map((route, index) => (
                   <Route
                     key={index}
-                    path={path+route.path}
+                    path={path + route.path}
                     exact={route.exact}
                     children={<route.main />}
                   />

@@ -2,10 +2,15 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "./club.css";
 
-export default function Club({ imageurl, clubName, clubDes, clubId }) {
+export default function Club({
+  imageurl,
+  clubName,
+  clubDes,
+  clubId,
+}) {
   return (
     <div className="club-layout my-2">
-      <Link to={`/clubs/${clubId}`} className="club-layout">
+      <Link to={`/app/clubs/${clubId}`} className="club-layout">
         <div
           className="club-image-div"
           style={{
