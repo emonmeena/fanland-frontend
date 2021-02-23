@@ -110,7 +110,7 @@ export default function ClubChatRoom({ userName, userProfilePic }) {
             <form action="#" onSubmit={onFormSubmit} id="send-container">
               <div className="d-flex bg-color-secondary px-2 pt-1">
                 <button className="bg-color-secondary border-0">
-                  <i class="fas fa-photo-video text-white"></i>
+                  <i className="fas fa-photo-video text-white"></i>
                 </button>
                 <input
                   type="text"
@@ -129,9 +129,9 @@ export default function ClubChatRoom({ userName, userProfilePic }) {
             <p className="fs-small py-1">Members</p>
           </div>
           <div className="pt-3 participants-container overflow-auto">
-            {chatsData.map((item) => {
+            {chatsData.map((item, index) => {
               return (
-                <div className="d-flex py-2">
+                <div className="d-flex py-2" key={index}>
                   <div>
                     <img
                       src={
@@ -141,7 +141,7 @@ export default function ClubChatRoom({ userName, userProfilePic }) {
                       height="30"
                       style={{ borderRadius: "50%" }}
                     />
-                    <span class="dot dot-active"></span>
+                    <span className="dot dot-active"></span>
                   </div>
                   <div>
                     <p className="fs-smaller px-2 pt-1">

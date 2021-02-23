@@ -1,8 +1,8 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import "./clubpage.css";
 
-export default function ClubPage({}) {
+export default function ClubPage() {
   const { clubId } = useParams();
   return (
     <div className="px-3 pt-3">
@@ -16,7 +16,12 @@ export default function ClubPage({}) {
               }}
             ></div>
           </div>
-          <div className="col-9 bg-color-secondary">wdjwbdj</div>
+          <div className="col-9 bg-color-secondary">
+            {clubId}
+            <div>
+              <Link to={`/app/chats/${clubId}`}>Open chats</Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>
