@@ -81,15 +81,15 @@ export default function Main({ isUserLoggedIn }) {
             <div className="col-1 bg-color-secondary p-0">
               <div className="py-3">
                 <div className="px-3 mb-3">
-                  <NavLink to={url} className="link">
+                  <NavLink to={url} className="link" activeClassName="link-nav-active">
                     <i className="fas fa-home icon-style"></i>
                     Home
                   </NavLink>
                 </div>
                 <div className="px-3 mb-3">
-                  <Link to={`${url}/explore`} className="link">
+                  <NavLink to={`${url}/explore`} className="link" activeClassName="link-nav-active">
                     <i className="far fa-compass icon-style"></i> Explore
-                  </Link>
+                  </NavLink>
                 </div>
               </div>
               <div className="px-3 fs-secondary">
@@ -97,28 +97,28 @@ export default function Main({ isUserLoggedIn }) {
                   <p>Fan Clubs</p>
                 </div>
                 <div className="my-1">
-                  <Link to={`${url}/made_by_me`} className="link fw-bold">
+                  <NavLink to={`${url}/made_by_me`} className="link fw-bold" activeClassName="link-active">
                     Made by You
-                  </Link>
+                  </NavLink>
                 </div>
                 <div className="my-1">
-                  <Link to={`${url}/recent`} className="link fw-bold">
+                  <NavLink to={`${url}/recent`} className="link fw-bold" activeClassName="link-active">
                     Recent
-                  </Link>
+                  </NavLink>
                 </div>
                 <div className="my-1">
-                  <Link to={`${url}/starred`} className="link fw-bold">
+                  <NavLink to={`${url}/starred`} className="link fw-bold" activeClassName="link-active">
                     Starred
-                  </Link>
+                  </NavLink>
                 </div>
               </div>
               <div className="position-absolute col-1" style={{ bottom: 0 }}>
-                <Link to="/create/fanclub" className="link">
+                <NavLink to="/create/fanclub" className="link" activeClassName="link-active">
                   <div className="custom-border-top py-3 px-3">
                     <i className="fas fa-plus-circle icon-style fa-2x"></i>
                     New Club
                   </div>
-                </Link>
+                </NavLink>
               </div>
             </div>
             {/* Column 2 */}

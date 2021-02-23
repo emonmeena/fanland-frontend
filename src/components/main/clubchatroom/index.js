@@ -145,7 +145,7 @@ export default function ClubChatRoom({ userName, userProfilePic }) {
                   </div>
                   <div>
                     <p className="fs-smaller px-2 pt-1">
-                      <Link className="link link-hover-underline text-white">
+                      <Link to={`/app/users/${"Maayami"}`} className="link link-hover-underline text-white">
                         MiyMaayami
                       </Link>
                       <span className="fs-smallest px-2"> 1 hour</span>
