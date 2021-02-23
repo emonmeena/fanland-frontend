@@ -9,7 +9,7 @@ import Auth from "./components/auth";
 import "./index.css";
 import { ProvideAuth, useAuth } from "./components/auth/useAuth";
 
-function App(props) {
+function App() {
   return (
     <ProvideAuth>
       <>
