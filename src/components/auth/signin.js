@@ -1,17 +1,18 @@
 import React, { useState } from "react";
-import { useHistory, useLocation, Link } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import { useAuth } from "./useAuth";
 
-export default function SignUp() {
+export default function SignIn() {
   const [userName, setUserName] = useState("");
   let history = useHistory();
   let location = useLocation();
   let auth = useAuth();
 
-  let { from } = location.state || { from: { pathname: "/auth/signin" } };
+  let { from } = location.state || { from: { pathname: "/" } };
 
-  const signup = () => {
-    auth.signup(userName, () => {
+  let login = () => {
+    auth.signin(userName, () => {
+      console.log(from);
       history.replace(from);
     });
   };
@@ -19,14 +20,15 @@ export default function SignUp() {
   const onTextChange = (e) => {
     setUserName(e.target.value);
   };
+
   return (
     <div>
-      Signup
-      <form onSubmit={signup}>
+      SignIn
+      <form onSubmit={login}>
         <input onChange={onTextChange} />
-        <input type="submit" value="SignUp" />
+        <input type="submit" value="SignIn" />
       </form>
-      <Link to="/signin">SignIn</Link>
+      <Link to="/signup">SignUp</Link>
     </div>
   );
 }

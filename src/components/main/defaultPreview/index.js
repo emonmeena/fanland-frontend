@@ -1,7 +1,7 @@
 import React from "react";
 import Club from "../club";
 
-export default function Home({title, urlEndpoint, tags}) {
+export default function defaultPreview({title, urlEndpoint, tags}) {
   return (
     <div className="px-3 overflow-auto container-home">
       <div className="py-5">
