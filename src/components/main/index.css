@@ -14,8 +14,13 @@
     background: #555;
   }  */
 
-button:hover {
-  cursor: default;
+  .club-image-container{
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 250px;
+    /* width: ; */
+  
 }
 
 .btn-hover-stop:hover {
@@ -59,6 +64,9 @@ p:hover {
 .fs-large {
   font-size: 42px;
 }
+.fs-larger {
+  font-size: 52px;
+}
 
 /* col-1 */
 .link {
@@ -72,7 +80,7 @@ p:hover {
 }
 
 .link-nav-active {
-  border-left: solid rgba(4, 202, 4, 0.801) 4px;
+  border-left: solid #1DB954 2px;
   color: white;
 }
 .link-active {
@@ -105,6 +113,7 @@ p:hover {
 .link-2:hover {
   text-decoration: underline;
   color: rgb(223, 219, 219);
+  cursor: default;
 }
 
 .link-hover-underline:hover {
@@ -115,8 +124,20 @@ nav {
   height: 5vh;
 }
 
+button{
+  border: none;
+}
+
 button:hover {
-  background-color: initial;
+  cursor: default;
+}
+.nav-btn-hover:hover{
+  color: white;
+  cursor: pointer;
+}
+
+.scale:hover{
+  transform: scale(1.05);
 }
 
 .container-home {
@@ -143,4 +164,7 @@ button:hover {
 }
 .bg-color-light {
   background-color: #b3b3b3;
+}
+.bg-color-green{
+  background-color: #1DB954;
 }

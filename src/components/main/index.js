@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import {
   BrowserRouter as Router,
   Switch,
@@ -13,7 +13,7 @@ import ClubPage from "./clubpage";
 import ClubChatRoom from "./clubchatroom";
 import CreateFanClub from "./createFanClub";
 import DefaultPreview from "./defaultPreview";
-import ProfilePage from './profilePage'
+import ProfilePage from "./profilePage";
 
 const routes = [
   {
@@ -25,21 +25,31 @@ const routes = [
   },
   {
     path: "/explore",
-    main: () => <DefaultPreview title="Explore" urlEndpoint="#" tags={["Recomended"]} />,
+    main: () => (
+      <DefaultPreview title="Explore" urlEndpoint="#" tags={["Recomended"]} />
+    ),
   },
   {
     path: "/made_by_me",
     main: () => (
-      <DefaultPreview title="Made by Me" urlEndpoint="#" tags={["Recomended"]} />
+      <DefaultPreview
+        title="Made by Me"
+        urlEndpoint="#"
+        tags={["Recomended"]}
+      />
     ),
   },
   {
     path: "/recent",
-    main: () => <DefaultPreview title="Recent" urlEndpoint="#" tags={["Recomended"]} />,
+    main: () => (
+      <DefaultPreview title="Recent" urlEndpoint="#" tags={["Recomended"]} />
+    ),
   },
   {
     path: "/liked",
-    main: () => <DefaultPreview title="Liked" urlEndpoint="#" tags={["Recomended"]} />,
+    main: () => (
+      <DefaultPreview title="Liked" urlEndpoint="#" tags={["Recomended"]} />
+    ),
   },
   {
     path: "/clubs/:clubId",
@@ -68,11 +78,11 @@ const routes = [
 
 export default function Main() {
   let { path, url } = useRouteMatch();
-  useEffect(() => {}, []);
-
+  const [modalShow, setModalShow] = useState(false);
   const history = useHistory();
   return (
     <Router>
+      <CreateFanClub show={modalShow} onHide={() => setModalShow(false)} />
       <div
         className="main-container text-white"
         style={{ backgroundColor: "black" }}
@@ -103,15 +113,15 @@ export default function Main() {
                   </NavLink>
                 </div>
               </div>
-              <div className="px-3 fs-secondary">
+              <div className="fs-secondary">
                 <div>
-                  <p>Fan Clubs</p>
+                  <p className="px-3">Fan Clubs</p>
                 </div>
                 <div className="my-1">
                   <NavLink
                     to={`${url}/made_by_me`}
-                    className="link fw-bold"
-                    activeClassName="link-active"
+                    className="link fw-bold px-3"
+                    activeClassName="link-nav-active"
                   >
                     Made by You
                   </NavLink>
@@ -119,8 +129,8 @@ export default function Main() {
                 <div className="my-1">
                   <NavLink
                     to={`${url}/recent`}
-                    className="link fw-bold"
-                    activeClassName="link-active"
+                    className="link fw-bold px-3"
+                    activeClassName="link-nav-active"
                   >
                     Recent
                   </NavLink>
@@ -128,24 +138,23 @@ export default function Main() {
                 <div className="my-1">
                   <NavLink
                     to={`${url}/liked`}
-                    className="link fw-bold"
-                    activeClassName="link-active"
+                    className="link fw-bold px-3"
+                    activeClassName="link-nav-active"
                   >
                     Liked
                   </NavLink>
                 </div>
               </div>
               <div className="position-absolute col-1" style={{ bottom: 0 }}>
-                <NavLink
-                  to={`${url}/create/fanclub`}
-                  className="link"
-                  activeClassName="link-active"
+                <button
+                  className="bg-color-secondary"
+                  onClick={() => setModalShow(true)}
                 >
-                  <div className="custom-border-top py-3 px-3">
+                  <div className="custom-border-top py-3 px-3 text-white">
                     <i className="fas fa-plus-circle icon-style fa-2x"></i>
                     New Club
                   </div>
-                </NavLink>
+                </button>
               </div>
             </div>
             {/* Column 2 */}
@@ -157,13 +166,13 @@ export default function Main() {
                       className="bg-color-primary border-0"
                       onClick={() => history.goBack()}
                     >
-                      <i className="fas fa-chevron-left icon-style-2"></i>
+                      <i className="fas fa-chevron-left icon-style-2 nav-btn-hover"></i>
                     </button>
                     <button
                       className="bg-color-primary border-0"
                       onClick={() => history.goForward()}
                     >
-                      <i className="fas fa-chevron-right icon-style-2"></i>
+                      <i className="fas fa-chevron-right icon-style-2 nav-btn-hover"></i>
                     </button>
                   </div>
                   <div className="mx-4">
