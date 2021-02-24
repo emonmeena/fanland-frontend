@@ -16,7 +16,7 @@ export default function ClubPage() {
             ></div>
           </div>
           <div className="col-9 d-flex">
-            <div class="align-self-end">
+            <div className="align-self-end">
               <div>
                 {/* <p className="fs-small">Fanclub</p> */}
                 <p className="fw-bolder fs-larger">MIB Force</p>
@@ -55,7 +55,7 @@ export default function ClubPage() {
           <div className="custom-border-bottom py-2">
             <p>
               {" "}
-              <i class="far fa-gem"></i> Top Fans
+              <i className="far fa-gem"></i> Top Fans
             </p>
           </div>
           <div className="py-2">

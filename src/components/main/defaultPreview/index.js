@@ -1,7 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Club from "../club";
+import { useAuth } from "../../auth/useAuth";
+import { fetchData } from "../../api/fakeDataAPI";
 
-export default function defaultPreview({title, urlEndpoint, tags}) {
+export default function DefaultPreview({ title, endPoint, tags }) {
+  const auth = useAuth();
+  const [data, setData] = useState([]);
+
+  const fetchClubs = () => {
+    let clubIds = [];
+    let sampleData = [];
+
+    switch (endPoint) {
+      case "followingClubs":
+        clubIds = ["dark_knights", "bollywood_2021"];
+        break;
+      case "adminClubs":
+        clubIds = ["andhadhun_baatein", "the_mib_force", "cats_only"];
+        break;
+      case "likedClubs":
+        clubIds = ["new_club_erena"];
+        break;
+
+      default:
+        break;
+    }
+
+    clubIds.map((clubId) => {
+      let sampleClub = fetchData(clubId);
+      sampleData.push(sampleClub);
+    });
+    setData(sampleData);
+  };
+
+  useEffect(() => {
+    fetchClubs();
+  }, []);
+
   return (
     <div className="px-3 overflow-auto container-home">
       <div className="py-5">
@@ -11,7 +46,7 @@ export default function defaultPreview({title, urlEndpoint, tags}) {
         <p className="fw-bold pb-1">{tags[0]}</p>
         <div className="custom-border-top pt-3">
           <div className="clubs-container">
-            {data.map((dataItem, index) => (
+            {/* {data.map((dataItem, index) => (
               <Club
                 key={index}
                 clubName={dataItem.name}
@@ -19,177 +54,10 @@ export default function defaultPreview({title, urlEndpoint, tags}) {
                 clubId={dataItem.id}
                 imageurl={dataItem.image}
               />
-            ))}
+            ))} */}
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-const data = [
-  {
-    name: "Cats only",
-    des: "The description of this club appear here.",
-    image:
-      "https://img.washingtonpost.com/rf/image_1484w/WashingtonPost/Content/Blogs/celebritology/Images/Film_Review_Dark_Knight_Rises-085d2-4549.jpg?uuid=ryK-otD1EeGt8tVushDNzQ",
-    id: "cat_army",
-  },
-  {
-    name: "Andhadhun baatein",
-    des: "The description of this club appear here.",
-    image:
-      "https://static.toiimg.com/thumb/msid-65705780,imgsize-105691,width-800,height-600,resizemode-75/65705780.jpg",
-    id: "andhadhun_baatein",
-  },
-  {
-    name: "The MIB Force",
-    des: "The description of this club appear here.",
-    image:
-      "http://sportofboxing.com/wp-content/uploads/2012/06/Challenging-Julius-Ballo-for-the-biggest-fan-club-is-Armando-Guerrero-500x320.jpg",
-    id: "the_mib_force",
-  },
-  {
-    name: "Andhadhun baatein",
-    des: "The description of this club appear here.",
-    image:
-      "https://www.indiewire.com/wp-content/uploads/2017/09/another-earth-2011.jpg?w=674",
-    id: "andhadhun_baatein",
-  },
-  {
-    name: "The MIB Force",
-    des: "The description of this club appear here.",
-    image:
-      "https://lumiere-a.akamaihd.net/v1/images/open-uri20150422-12561-fgl5xk_f4708b43.jpeg",
-    id: "the_mib_force",
-  },
-  {
-    name: "Andhadhun baatein",
-    des: "The description of this club appear here.",
-    image:
-      "https://static.toiimg.com/thumb/msid-65705780,imgsize-105691,width-800,height-600,resizemode-75/65705780.jpg",
-    id: "andhadhun_baatein",
-  },
-  {
-    name: "The MIB Force",
-    des: "The description of this club appear here.",
-    image:
-      "https://www.marketplace.org/wp-content/uploads/2018/07/GettyImages-81662579.jpg?fit=1800%2C1000",
-    id: "the_mib_force",
-  },
-  {
-    name: "Andhadhun baatein",
-    des: "The description of this club appear here.",
-    image:
-      "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/earth-day-movie-1522087200.png",
-    id: "andhadhun_baatein",
-  },
-  {
-    name: "The MIB Force",
-    des: "The description of this club appear here.",
-    image: "https://i.ytimg.com/vi/Tn7w7gGt_3g/maxresdefault.jpg",
-    id: "the_mib_force",
-  },
-  {
-    name: "Andhadhun baatein",
-    des: "The description of this club appear here.",
-    image:
-      "https://static.toiimg.com/thumb/msid-65705780,imgsize-105691,width-800,height-600,resizemode-75/65705780.jpg",
-    id: "andhadhun_baatein",
-  },
-  {
-    name: "The MIB Force",
-    des: "The description of this club appear here.",
-    image:
-      "http://sportofboxing.com/wp-content/uploads/2012/06/Challenging-Julius-Ballo-for-the-biggest-fan-club-is-Armando-Guerrero-500x320.jpg",
-    id: "the_mib_force",
-  },
-  {
-    name: "Andhadhun baatein",
-    des: "The description of this club appear here.",
-    image:
-      "https://static.toiimg.com/thumb/msid-65705780,imgsize-105691,width-800,height-600,resizemode-75/65705780.jpg",
-    id: "andhadhun_baatein",
-  },
-  {
-    name: "The MIB Force",
-    des: "The description of this club appear here.",
-    image: "https://i.ytimg.com/vi/Tn7w7gGt_3g/maxresdefault.jpg",
-    id: "the_mib_force",
-  },
-  {
-    name: "Andhadhun baatein",
-    des: "The description of this club appear here.",
-    image:
-      "https://static.toiimg.com/thumb/msid-65705780,imgsize-105691,width-800,height-600,resizemode-75/65705780.jpg",
-    id: "andhadhun_baatein",
-  },
-  {
-    name: "The MIB Force",
-    des: "The description of this club appear here.",
-    image:
-      "http://sportofboxing.com/wp-content/uploads/2012/06/Challenging-Julius-Ballo-for-the-biggest-fan-club-is-Armando-Guerrero-500x320.jpg",
-    id: "the_mib_force",
-  },
-  {
-    name: "Andhadhun baatein",
-    des: "The description of this club appear here.",
-    image:
-      "https://static.toiimg.com/thumb/msid-65705780,imgsize-105691,width-800,height-600,resizemode-75/65705780.jpg",
-    id: "andhadhun_baatein",
-  },
-  {
-    name: "The MIB Force",
-    des: "The description of this club appear here.",
-    image: "https://i.ytimg.com/vi/Tn7w7gGt_3g/maxresdefault.jpg",
-    id: "the_mib_force",
-  },
-  {
-    name: "Andhadhun baatein",
-    des: "The description of this club appear here.",
-    image:
-      "https://static.toiimg.com/thumb/msid-65705780,imgsize-105691,width-800,height-600,resizemode-75/65705780.jpg",
-    id: "andhadhun_baatein",
-  },
-  {
-    name: "The MIB Force",
-    des: "The description of this club appear here.",
-    image:
-      "http://sportofboxing.com/wp-content/uploads/2012/06/Challenging-Julius-Ballo-for-the-biggest-fan-club-is-Armando-Guerrero-500x320.jpg",
-    id: "the_mib_force",
-  },
-  {
-    name: "Andhadhun baatein",
-    des: "The description of this club appear here.",
-    image:
-      "https://static.toiimg.com/thumb/msid-65705780,imgsize-105691,width-800,height-600,resizemode-75/65705780.jpg",
-    id: "andhadhun_baatein",
-  },
-  {
-    name: "The MIB Force",
-    des: "The description of this club appear here.",
-    image: "https://i.ytimg.com/vi/Tn7w7gGt_3g/maxresdefault.jpg",
-    id: "the_mib_force",
-  },
-  {
-    name: "Andhadhun baatein",
-    des: "The description of this club appear here.",
-    image:
-      "https://static.toiimg.com/thumb/msid-65705780,imgsize-105691,width-800,height-600,resizemode-75/65705780.jpg",
-    id: "andhadhun_baatein",
-  },
-  {
-    name: "The MIB Force",
-    des: "The description of this club appear here.",
-    image:
-      "http://sportofboxing.com/wp-content/uploads/2012/06/Challenging-Julius-Ballo-for-the-biggest-fan-club-is-Armando-Guerrero-500x320.jpg",
-    id: "the_mib_force",
-  },
-  {
-    name: "Andhadhun baatein",
-    des: "The description of this club appear here.",
-    image:
-      "https://static.toiimg.com/thumb/msid-65705780,imgsize-105691,width-800,height-600,resizemode-75/65705780.jpg",
-    id: "andhadhun_baatein",
-  },
-];

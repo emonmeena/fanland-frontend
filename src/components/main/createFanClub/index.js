@@ -14,9 +14,9 @@ export default function CreateFanClub(props) {
       size="lg"
       aria-labelledby="contained-modal-title-vcenter"
       centered
-      contentClassName="bg-color-primary text-white px-3 py-2"
+      contentClassName="bg-color-primary text-white px-3 py-3"
     >
-      <div className="d-flex">
+      <div className="d-flex px-2">
         <div className="col-11 text-center">
           <p className="fw-bold fs-5">Create Fanclub</p>
         </div>
@@ -26,58 +26,60 @@ export default function CreateFanClub(props) {
           </button>
         </div>
       </div>
-      {/* <Modal.Body> */}
-      <div className="row py-4">
-        <div className="col-4">
-          <div
-            className="club-image-container"
-            style={{
-              backgroundImage: `url("https://static.toiimg.com/thumb/msid-65705780,imgsize-105691,width-800,height-600,resizemode-75/65705780.jpg")`,
-            }}
-          ></div>
-        </div>
-        <div className="col-8">
-          <form>
-            <div className="form-group">
-              <label for="clubName">
-                <p className="fs-secondary">Name</p>{" "}
-              </label>
-              <input
-                type="text"
-                id="clubName"
-                className="form-control mt-1"
-                placeholder="My awesome fanclub"
-                value={clubTitle}
-                onChange={(e) => setTitle(e.target.value)}
-              />
+      <Modal.Body>
+        <div className="row">
+          <div className="col-4">
+            <div
+              className="club-image-container bg-color-secondary"
+              style={{
+                backgroundImage: `${clubImage}`,
+              }}
+            >              
             </div>
-            <div className="form-group mt-2">
-              <label for="clubDes">
-                <p className="fs-secondary">Description</p>
-              </label>
-              <textarea
-                type="text"
-                id="clubDes"
-                className="form-control mt-1"
-                placeholder="Give your fanclub a catchy description."
-                value={clubDes}
-                onChange={(e) => setDes(e.target.value)}
-                rows={5}
-              ></textarea>
-            </div>
-          </form>
+          </div>
+          <div className="col-8">
+            <form>
+              <div className="form-group">
+                <label htmlFor="clubName">
+                  <p className="fs-secondary">Name</p>{" "}
+                </label>
+                <input
+                  type="text"
+                  id="clubName"
+                  className="form-control mt-1"
+                  placeholder="My awesome fanclub"
+                  required
+                  value={clubTitle}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+              </div>
+              <div className="form-group mt-2">
+                <label htmlFor="clubDes">
+                  <p className="fs-secondary">Description</p>
+                </label>
+                <textarea
+                  type="text"
+                  id="clubDes"
+                  className="form-control mt-1"
+                  placeholder="Give your fanclub a catchy description."
+                  value={clubDes}
+                  onChange={(e) => setDes(e.target.value)}
+                  rows={5}
+                ></textarea>
+              </div>
+            </form>
+          </div>
+          <div className="d-flex justify-content-center">
+            <button
+              type="submit"
+              className="bg-color-green border-0 p-2 px-3 rounded mt-3 text-white"
+              onClick={createClub}
+            >
+              CREATE
+            </button>
+          </div>
         </div>
-        <div className="d-flex justify-content-center">
-          <button
-            type="submit"
-            className="bg-color-green border-0 p-2 px-3 rounded mt-3 text-white"
-            onClick={createClub}
-          >
-            CREATE
-          </button>
-        </div>
-      </div>
-      {/* </Modal.Body> */}
+      </Modal.Body>
     </Modal>
   );
 }

@@ -14,27 +14,26 @@ import ClubChatRoom from "./clubchatroom";
 import CreateFanClub from "./createFanClub";
 import DefaultPreview from "./defaultPreview";
 import ProfilePage from "./profilePage";
+import { useAuth } from "../auth/useAuth";
 
 const routes = [
   {
     path: "",
     exact: true,
     main: () => (
-      <DefaultPreview title="Home" urlEndpoint="#" tags={["Followed by You"]} />
+      <DefaultPreview
+        title="Home"
+        endPoint="followingClubs"
+        tags={["Followed by You"]}
+      />
     ),
   },
   {
     path: "/explore",
     main: () => (
-      <DefaultPreview title="Explore" urlEndpoint="#" tags={["Recomended"]} />
-    ),
-  },
-  {
-    path: "/made_by_me",
-    main: () => (
       <DefaultPreview
-        title="Made by Me"
-        urlEndpoint="#"
+        title="Explore"
+        endpoint="interest"
         tags={["Recomended"]}
       />
     ),
@@ -42,13 +41,23 @@ const routes = [
   {
     path: "/recent",
     main: () => (
-      <DefaultPreview title="Recent" urlEndpoint="#" tags={["Recomended"]} />
+      <DefaultPreview title="Recent" endpoint="recentClubs" tags={["Recomended"]} />
+    ),
+  },
+  {
+    path: "/made_by_me",
+    main: () => (
+      <DefaultPreview
+        title="Made by Me"
+        endpoint="adminClubs"
+        tags={["Recomended"]}
+      />
     ),
   },
   {
     path: "/liked",
     main: () => (
-      <DefaultPreview title="Liked" urlEndpoint="#" tags={["Recomended"]} />
+      <DefaultPreview title="Liked" endpoint="likedClubs" tags={["Recomended"]} />
     ),
   },
   {
@@ -77,6 +86,7 @@ const routes = [
 ];
 
 export default function Main() {
+  const auth = useAuth();
   let { path, url } = useRouteMatch();
   const [modalShow, setModalShow] = useState(false);
   const history = useHistory();

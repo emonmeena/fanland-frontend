@@ -1,4 +1,5 @@
 import React, { useState, useContext, createContext } from "react";
+import { fetchUser } from "../api/fakeUserAPI";
 
 const authContext = createContext();
 
@@ -16,12 +17,14 @@ function useProvideAuth() {
   const [user, setUser] = useState(null);
 
   const signin = (userName, callback) => {
-    setUser(userName);
-    callback();
+    let userData = fetchUser(userName);
+    if (userData) {
+      setUser(userData);
+      callback();
+    } else console.log("User not found.");
   };
 
   const signup = (userName, callback) => {
-    console.log(userName);
     callback();
   };
 
