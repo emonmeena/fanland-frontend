@@ -93,7 +93,10 @@ export default function ClubChatRoom({ userName, userProfilePic }) {
                     className="mx-1"
                   />
                   <p className="fs-smaller px-3">
-                    <Link className="link link-hover-underline">
+                    <Link
+                      to={`/app/users/${chat.author}`}
+                      className="link link-hover-underline"
+                    >
                       <span className="fw-bolder text-white fs-medium">
                         {chat.author}
                       </span>
@@ -145,7 +148,10 @@ export default function ClubChatRoom({ userName, userProfilePic }) {
                   </div>
                   <div>
                     <p className="fs-smaller px-2 pt-1">
-                      <Link to={`/app/users/${"Maayami"}`} className="link link-hover-underline text-white">
+                      <Link
+                        to={`/app/users/${"Maayami"}`}
+                        className="link link-hover-underline text-white"
+                      >
                         MiyMaayami
                       </Link>
                       <span className="fs-smallest px-2"> 1 hour</span>

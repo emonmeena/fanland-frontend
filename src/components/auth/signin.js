@@ -10,9 +10,9 @@ export default function SignIn() {
 
   let { from } = location.state || { from: { pathname: "/" } };
 
-  let login = () => {
+  let login = (e) => {
+    e.preventDefault();
     auth.signin(userName, () => {
-      console.log(from);
       history.replace(from);
     });
   };
