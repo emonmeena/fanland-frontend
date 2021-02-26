@@ -2,31 +2,17 @@ import React, { useEffect, useState } from "react";
 import Club from "../club";
 import { useAuth } from "../../auth/useAuth";
 import { fetchData } from "../../api/fakeDataAPI";
+import { fetchUserClubs } from "../../api/fakeUserAPI";
 
-export default function DefaultPreview({ title, endPoint, tags }) {
+export default function DefaultPreview({ title, endpoint, tags }) {
   const auth = useAuth();
   const [data, setData] = useState([]);
 
   const fetchClubs = () => {
-    let clubIds = [];
     let sampleData = [];
+    let clubNames = fetchUserClubs(auth.user.userName, endpoint);
 
-    switch (endPoint) {
-      case "followingClubs":
-        clubIds = ["dark_knights", "bollywood_2021"];
-        break;
-      case "adminClubs":
-        clubIds = ["andhadhun_baatein", "the_mib_force", "cats_only"];
-        break;
-      case "likedClubs":
-        clubIds = ["new_club_erena"];
-        break;
-
-      default:
-        break;
-    }
-
-    clubIds.map((clubId) => {
+    clubNames.map((clubId) => {
       let sampleClub = fetchData(clubId);
       sampleData.push(sampleClub);
     });
@@ -46,7 +32,7 @@ export default function DefaultPreview({ title, endPoint, tags }) {
         <p className="fw-bold pb-1">{tags[0]}</p>
         <div className="custom-border-top pt-3">
           <div className="clubs-container">
-            {/* {data.map((dataItem, index) => (
+            {data.map((dataItem, index) => (
               <Club
                 key={index}
                 clubName={dataItem.name}
@@ -54,7 +40,7 @@ export default function DefaultPreview({ title, endPoint, tags }) {
                 clubId={dataItem.id}
                 imageurl={dataItem.image}
               />
-            ))} */}
+            ))}
           </div>
         </div>
       </div>

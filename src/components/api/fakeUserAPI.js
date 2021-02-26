@@ -8,13 +8,32 @@ export const fetchUser = (userName) => {
   return user;
 };
 
+export const fetchUserClubs = (userName, endpoint) => {
+  let user = null;
+  users.map((item) => {
+    if (item.userName == userName) user = item;
+  });
+  let clubsData = [];
+  switch (endpoint) {
+    case "followingClubs":
+      return user.followingClubs;
+    case "adminClubs":
+      return user.adminClubs;
+    case "likedClubs":
+      return user.likedClubs;
+
+    default:
+      return user.interest;
+  }
+};
+
 const users = [
   {
     userName: "maayami",
     email: "mayank_m@cs.iitr.ac.in",
-    interest: ["science", "fiction", "romance", "action"],
-    followingClubs: ["dark_knights", "bollywood_2021"],
-    adminClubs: ["andhadhun_baatein", "the_mib_force", "cats_only"],
-    likedClubs: ["new_club_erena"],
+    interest: ["the_mib_force", "cat_army", "andhadhun_baatein"],
+    followingClubs: ["andhadhun_baatein", "the_mib_force"],
+    adminClubs: ["andhadhun_baatein", "the_mib_force", "the_mib_force"],
+    likedClubs: ["cat_army"],
   },
 ];

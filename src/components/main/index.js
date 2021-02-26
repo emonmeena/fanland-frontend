@@ -23,7 +23,7 @@ const routes = [
     main: () => (
       <DefaultPreview
         title="Home"
-        endPoint="followingClubs"
+        endpoint="followingClubs"
         tags={["Followed by You"]}
       />
     ),
