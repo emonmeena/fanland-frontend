@@ -1,12 +1,54 @@
 import React, { useState } from "react";
 import { Modal } from "react-bootstrap";
+import { useHistory, useLocation } from "react-router-dom";
+import { useAuth } from "../../auth/useAuth";
+import { AddClubData } from "../../api/fakeDataAPI";
 
 export default function CreateFanClub(props) {
   const [clubTitle, setTitle] = useState("");
   const [clubDes, setDes] = useState("");
   const [clubImage, setImage] = useState("");
+  const [clubID, setClubID] = useState("");
+  let auth = useAuth();
+  let userName = auth.user.userName;
 
-  const createClub = () => {};
+  let history = useHistory();
+  let location = useLocation();
+
+  let { from } = location.state || {
+    from: { pathname: `/app/clubs/${clubID}` },
+  };
+
+  const createClubId = (str) => {
+    str = str.trim();
+    str = str.toLowerCase();
+    str = str.replace(/ /g, "_");
+    setClubID(str);
+  };
+
+  const resetStates = () => {
+    setTitle("");
+    setDes("");
+    setImage("");
+  };
+
+  const createClub = (e) => {
+    e.preventDefault();
+    let sampleClub = {};
+    sampleClub.name = clubTitle;
+    sampleClub.des = clubDes;
+    sampleClub.image =
+      "https://img.washingtonpost.com/rf/image_1484w/WashingtonPost/Content/Blogs/celebritology/Images/Film_Review_Dark_Knight_Rises-085d2-4549.jpg?uuid=ryK-otD1EeGt8tVushDNzQ";
+    sampleClub.id = clubID;
+    sampleClub.topFans = [userName];
+    sampleClub.admin = userName;
+    sampleClub.members = [userName];
+
+    AddClubData(sampleClub);
+    resetStates();
+    props.onHide();
+    history.replace(from);
+  };
 
   return (
     <Modal
@@ -34,14 +76,13 @@ export default function CreateFanClub(props) {
               style={{
                 backgroundImage: `${clubImage}`,
               }}
-            >              
-            </div>
+            ></div>
           </div>
           <div className="col-8">
-            <form>
+            <form onSubmit={createClub}>
               <div className="form-group">
                 <label htmlFor="clubName">
-                  <p className="fs-secondary">Name</p>{" "}
+                  <p className="fs-secondary">Name</p>
                 </label>
                 <input
                   type="text"
@@ -50,7 +91,10 @@ export default function CreateFanClub(props) {
                   placeholder="My awesome fanclub"
                   required
                   value={clubTitle}
-                  onChange={(e) => setTitle(e.target.value)}
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                    createClubId(e.target.value);
+                  }}
                 />
               </div>
               <div className="form-group mt-2">
@@ -63,20 +107,20 @@ export default function CreateFanClub(props) {
                   className="form-control mt-1"
                   placeholder="Give your fanclub a catchy description."
                   value={clubDes}
+                  required
                   onChange={(e) => setDes(e.target.value)}
                   rows={5}
                 ></textarea>
               </div>
+              <div className="mx-md-5 px-md-3 pt-2">
+                <button
+                  type="submit"
+                  className="bg-color-green border-0 p-2 px-3 rounded mt-3 text-white"
+                >
+                  CREATE
+                </button>
+              </div>
             </form>
-          </div>
-          <div className="d-flex justify-content-center">
-            <button
-              type="submit"
-              className="bg-color-green border-0 p-2 px-3 rounded mt-3 text-white"
-              onClick={createClub}
-            >
-              CREATE
-            </button>
           </div>
         </div>
       </Modal.Body>

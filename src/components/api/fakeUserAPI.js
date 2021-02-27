@@ -13,7 +13,6 @@ export const fetchUserClubs = (userName, endpoint) => {
   users.map((item) => {
     if (item.userName == userName) user = item;
   });
-  let clubsData = [];
   switch (endpoint) {
     case "followingClubs":
       return user.followingClubs;
