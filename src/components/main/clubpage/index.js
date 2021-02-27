@@ -11,30 +11,41 @@ export default function ClubPage() {
   const [viewpoint, setView] = useState(0);
   const { clubId } = useParams();
 
-  const fetchClub = (cb) => {
+  const fetchClub = () => {
     let sampleClub = fetchData(clubId);
+    fetchMoreClubs(sampleClub.admin);
     if (!sampleClub) {
       setView(2);
     } else {
       setFanclub(sampleClub);
-      fetchMoreClubs(sampleClub.admin);
       setView(1);
     }
   };
 
   const fetchMoreClubs = (admin) => {
-    let sampleData = [];
+    let sampleMoreData = [];
     let sampleMoreClubNames = fetchUserClubs(admin, "adminClubs");
 
     sampleMoreClubNames = sampleMoreClubNames.slice(0, 6);
 
     sampleMoreClubNames.map((clubId) => {
       let sampleClub = fetchData(clubId);
-      sampleData.push(sampleClub);
+      sampleMoreData.push(sampleClub);
     });
-
-    setMoreData(sampleData);
-    console.log(sampleData);
+    console.log(sampleMoreData);
+    setMoreData(sampleMoreData);
+    // setMoreData([
+    //   {
+    //     name: "Cats only",
+    //     des: "The description of this club appear here.",
+    //     image:
+    //       "https://img.washingtonpost.com/rf/image_1484w/WashingtonPost/Content/Blogs/celebritology/Images/Film_Review_Dark_Knight_Rises-085d2-4549.jpg?uuid=ryK-otD1EeGt8tVushDNzQ",
+    //     id: "cat_army",
+    //     topFans: ["Alan1619", "poby1", "maayami"],
+    //     members: ["maayami", "poby1", "Alan1619"],
+    //     admin: "maayami",
+    //   },
+    // ]);
   };
 
   useEffect(() => {
@@ -136,13 +147,16 @@ export default function ClubPage() {
             </div>
             <div className="d-flex flex-nowrap">
               {moreClubsdata.map((dataItem, index) => {
-                <Club
-                  key={index}
-                  clubName={dataItem.name}
-                  clubDes={dataItem.des}
-                  clubId={dataItem.id}
-                  imageurl={dataItem.image}
-                />;
+                return (
+                  <div key={index} className={`px-${index==0?0:3} py-3`}>
+                    <Club
+                      clubName={dataItem.name}
+                      clubDes={dataItem.des}
+                      clubId={dataItem.id}
+                      imageurl={dataItem.image}
+                    />
+                  </div>
+                );
               })}
             </div>
           </div>
