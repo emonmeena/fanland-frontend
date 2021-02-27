@@ -5,7 +5,7 @@ import { useAuth } from "../../auth/useAuth";
 import { AddClubData } from "../../api/fakeDataAPI";
 
 export default function CreateFanClub(props) {
-  const [clubTitle, setTitle] = useState();
+  const [clubTitle, setTitle] = useState("");
   const [clubDes, setDes] = useState("");
   const [clubImage, setImage] = useState("");
   const [clubID, setClubID] = useState("");
@@ -16,11 +16,10 @@ export default function CreateFanClub(props) {
   let location = useLocation();
 
   let { from } = location.state || {
-    from: { pathname: `/app/clubs/${"the_mib_force"}` },
+    from: { pathname: `/app/clubs/${clubID}` },
   };
 
-  const createClubId = () => {
-    let str = clubTitle;
+  const createClubId = (str) => {
     str = str.trim();
     str = str.toLowerCase();
     str = str.replace(/ /g, "_");
@@ -45,8 +44,7 @@ export default function CreateFanClub(props) {
     sampleClub.admin = userName;
     sampleClub.members = [userName];
 
-    // AddClubData();
-    console.log(sampleClub)
+    AddClubData(sampleClub);
     resetStates();
     props.onHide();
     history.replace(from);
@@ -95,7 +93,7 @@ export default function CreateFanClub(props) {
                   value={clubTitle}
                   onChange={(e) => {
                     setTitle(e.target.value);
-                    createClubId();
+                    createClubId(e.target.value);
                   }}
                 />
               </div>
@@ -114,7 +112,7 @@ export default function CreateFanClub(props) {
                   rows={5}
                 ></textarea>
               </div>
-              <div className="d-flex justify-content-center">
+              <div className="mx-md-5 px-md-3 pt-2">
                 <button
                   type="submit"
                   className="bg-color-green border-0 p-2 px-3 rounded mt-3 text-white"

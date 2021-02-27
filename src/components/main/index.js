@@ -41,7 +41,11 @@ const routes = [
   {
     path: "/recent",
     main: () => (
-      <DefaultPreview title="Recent" endpoint="recentClubs" tags={["Recomended"]} />
+      <DefaultPreview
+        title="Recent"
+        endpoint="recentClubs"
+        tags={["Recomended"]}
+      />
     ),
   },
   {
@@ -57,7 +61,11 @@ const routes = [
   {
     path: "/liked",
     main: () => (
-      <DefaultPreview title="Liked" endpoint="likedClubs" tags={["Recomended"]} />
+      <DefaultPreview
+        title="Liked"
+        endpoint="likedClubs"
+        tags={["Recomended"]}
+      />
     ),
   },
   {
@@ -78,10 +86,6 @@ const routes = [
         }
       />
     ),
-  },
-  {
-    path: "/create/fanclub",
-    main: () => <CreateFanClub />,
   },
 ];
 
@@ -125,16 +129,7 @@ export default function Main() {
               </div>
               <div className="fs-secondary">
                 <div>
-                  <p className="px-3">Fan Clubs</p>
-                </div>
-                <div className="my-1">
-                  <NavLink
-                    to={`${url}/made_by_me`}
-                    className="link fw-bold px-3"
-                    activeClassName="link-nav-active"
-                  >
-                    Made by You
-                  </NavLink>
+                  <p className="px-3 fs-smaller">Fanclubs</p>
                 </div>
                 <div className="my-1">
                   <NavLink
@@ -147,11 +142,20 @@ export default function Main() {
                 </div>
                 <div className="my-1">
                   <NavLink
+                    to={`${url}/made_by_me`}
+                    className="link fw-bold px-3"
+                    activeClassName="link-nav-active"
+                  >
+                    Made by You
+                  </NavLink>
+                </div>
+                <div className="my-1">
+                  <NavLink
                     to={`${url}/liked`}
                     className="link fw-bold px-3"
                     activeClassName="link-nav-active"
                   >
-                    Liked
+                    Liked Clubs
                   </NavLink>
                 </div>
               </div>

@@ -6,6 +6,7 @@ export const fetchData = (clubId) => {
   return club;
 };
 
+
 export const AddClubData = (club) => {
   data.push(club);
 };
