@@ -1,9 +1,25 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
+import { fetchData } from "../../api/fakeDataAPI";
 
 export default function ClubPage() {
+  const [fanclub, setFanclub] = useState(null);
+  const [loading, setLoading] = useState(true);
   const { clubId } = useParams();
-  return (
+
+  const fetchClub = () => {
+    let sampleClub = fetchData(clubId);
+    setFanclub(sampleClub);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchClub();
+  }, []);
+
+  return loading ? (
+    <div>hello loading</div>
+  ) : (
     <div className="px-3 pt-3">
       <div className="top-clubpage">
         <div className="row">
@@ -19,18 +35,21 @@ export default function ClubPage() {
             <div className="align-self-end">
               <div>
                 {/* <p className="fs-small">Fanclub</p> */}
-                <p className="fw-bolder fs-larger">MIB Force</p>
+                <p className="fw-bolder fs-larger">{fanclub.name}</p>
               </div>
               <div>
                 <p className="fs-secondary">
-                  description of the fanclub <br />
+                  {fanclub.des} <br />
                   created by {/* <span> */}
-                  <Link to={`/app/users/Maayami`} className="link-2 text-white">
-                    Maayami
+                  <Link
+                    to={`/app/users/${fanclub.admin}`}
+                    className="link-2 text-white"
+                  >
+                    {fanclub.admin}
                   </Link>
                   {","}
                   <i className="fas fa-users mx-1"></i>
-                  328 Members
+                  {fanclub.members.length}
                   {/* </span> */}
                 </p>
               </div>
@@ -59,7 +78,7 @@ export default function ClubPage() {
             </p>
           </div>
           <div className="py-2">
-            {topFans.map((fan, index) => {
+            {fanclub.topFans.map((fan, index) => {
               return (
                 <div className="my-2" key={index}>
                   <div className="d-flex">
@@ -81,7 +100,9 @@ export default function ClubPage() {
         </div>
         <div className="pt-4">
           <div className="custom-border-bottom py-2">
-            <p className="fs-secondary"> More by  <span className="text-white">Maayami</span></p>
+            <p className="fs-secondary">
+              More by <span className="text-white"> {fanclub.admin} </span>
+            </p>
           </div>
         </div>
       </div>
