@@ -14,17 +14,14 @@
     background: #555;
   }  */
 
-  .club-image-container{
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-    height: 250px;
-    /* width: ; */
-  
+.club-image-container {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 250px;
+  /* width: ; */
 }
 /* Padding */
-
-
 
 .btn-hover-stop:hover {
   background-color: white;
@@ -35,6 +32,10 @@ p {
 }
 p:hover {
   cursor: default;
+}
+
+.fs-yellow {
+  color: rgb(255, 115, 0);
 }
 
 .fs-primary {
@@ -83,7 +84,7 @@ p:hover {
 }
 
 .link-nav-active {
-  border-left: solid #1DB954 2px;
+  border-left: solid #1db954 2px;
   color: white;
 }
 .link-active {
@@ -127,20 +128,38 @@ nav {
   height: 5vh;
 }
 
-button{
+.active {
+  background-color: #1db954;
+  color: white;
+}
+.active:hover {
+  transform: scale(1.02);
+  color: white;
+}
+
+.not-active {
+  color: #1db954;
+  border: solid 2px #1db954;
+}
+
+.not-active:hover {
+  color: #1db954;
+}
+
+button {
   border: none;
 }
 
 button:hover {
   cursor: default;
 }
-.nav-btn-hover:hover{
+.nav-btn-hover:hover {
   color: white;
   cursor: pointer;
 }
 
-.scale:hover{
-  transform: scale(1.05);
+.scale:hover {
+  transform: scale(1.01);
 }
 
 .container-home {
@@ -168,6 +187,9 @@ button:hover {
 .bg-color-light {
   background-color: #b3b3b3;
 }
-.bg-color-green{
-  background-color: #1DB954;
+.bg-color-green {
+  background-color: #1db954;
+}
+.bg-color-yellow {
+  background-color: yellow;
 }
