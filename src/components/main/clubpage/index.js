@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { fetchData } from "../../api/fakeDataAPI";
 import { fetchUserClubs } from "../../api/fakeUserAPI";
 import Club from "../club";
-import ClubNotFound from "../clubNotFound";
+import PageNotFound from "../pageNotFound";
 import { useAuth } from "../../auth/useAuth";
 
 export default function ClubPage() {
@@ -15,7 +15,7 @@ export default function ClubPage() {
   const [isLiked, setisLiked] = useState(false);
   const [isMember, setisMember] = useState(false);
   const { clubId } = useParams();
-  console.log(clubId);
+
   let auth = useAuth();
 
   const fetchClub = () => {
@@ -75,7 +75,7 @@ export default function ClubPage() {
   };
 
   const viewNotFound = () => {
-    return <ClubNotFound />;
+    return <PageNotFound />;
   };
 
   const viewMain = () => {
@@ -181,7 +181,7 @@ export default function ClubPage() {
                 See All
               </Link>
             </div>
-            <div className="d-flex flex-nowrap">
+            <div className="d-flex flex-nowrap col-6">
               {moreClubsdata.map((dataItem, index) => {
                 return (
                   <div key={index} className={`px-${index == 0 ? 0 : 3} py-3`}>
