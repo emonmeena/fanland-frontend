@@ -83,6 +83,10 @@ p:hover {
   cursor: default;
 }
 
+.tag-navlink-active{
+  border-bottom: solid #1db954 1px;
+}
+
 .link-nav-active {
   border-left: solid #1db954 2px;
   color: white;

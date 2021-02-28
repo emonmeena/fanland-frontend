@@ -21,11 +21,7 @@ const routes = [
     path: "",
     exact: true,
     main: () => (
-      <DefaultPreview
-        title="Home"
-        endpoint="followingClubs"
-        tags={["Followed by You"]}
-      />
+      <DefaultPreview title="Home" endpoint="followingClubs" tags={null} />
     ),
   },
   {
@@ -34,38 +30,33 @@ const routes = [
       <DefaultPreview
         title="Explore"
         endpoint="interest"
-        tags={["Recomended"]}
+        tags={[
+          { tagTitle: "All", tagId: "" },
+          { tagTitle: "Suggested", tagId: "suggested" },
+        ]}
       />
     ),
   },
   {
     path: "/recent",
     main: () => (
-      <DefaultPreview
-        title="Recent"
-        endpoint="recentClubs"
-        tags={["Recomended"]}
-      />
+      <DefaultPreview title="Recent" endpoint="recentClubs" tags={null} />
     ),
   },
   {
     path: "/made_by_me",
-    main: () => (
+    main: (name) => (
       <DefaultPreview
-        title="Made by Me"
+        title={`Made by ${name}`}
         endpoint="adminClubs"
-        tags={["Recomended"]}
+        tags={null}
       />
     ),
   },
   {
     path: "/liked",
     main: () => (
-      <DefaultPreview
-        title="Liked"
-        endpoint="likedClubs"
-        tags={["Recomended"]}
-      />
+      <DefaultPreview title="Liked Clubs" endpoint="likedClubs" tags={null} />
     ),
   },
   {
@@ -238,7 +229,7 @@ export default function Main() {
                     key={index}
                     path={path + route.path}
                     exact={route.exact}
-                    children={<route.main />}
+                    children={route.main(auth.user.userName)}
                   />
                 ))}
               </Switch>
