@@ -5,19 +5,21 @@ import { Spinner } from "react-bootstrap";
 import "./index.css";
 import { useAuth } from "../../auth/useAuth";
 import { fetchData } from "../../api/fakeDataAPI";
-import { fetchUser } from "../../api/fakeUserAPI";
 
 const socket = io.connect("http://localhost:4000");
 
-export default function ClubChatRoom({ userName, userProfilePic }) {
-  const { chatRoomId } = useParams();
+export default function ClubChatRoom() {
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [message, setMessage] = useState("");
   const [chats, setChats] = useState(null);
   const [members, setMembers] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isMember, setisMember] = useState(false);
+  const { chatRoomId } = useParams();
+
   let auth = useAuth();
+  let userName = auth.user.userName;
+  let userProfilePic = auth.user.profileImageUrl;
 
   const textChange = (e) => {
     setMessage(e.target.value);
@@ -77,7 +79,7 @@ export default function ClubChatRoom({ userName, userProfilePic }) {
     });
     if (messageContainer)
       messageContainer.scrollTo(0, messageContainer.scrollHeight);
-  }, [chatRoomId, chats, loading, userName, onlineUsers]);
+  }, [chatRoomId, chats, loading, userName, onlineUsers, members]);
 
   const joinUser = () => {
     setisMember(true);

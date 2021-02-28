@@ -70,14 +70,7 @@ const routes = [
   },
   {
     path: "/chats/:chatRoomId",
-    main: () => (
-      <ClubChatRoom
-        userName={"Mayank"}
-        userProfilePic={
-          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png"
-        }
-      />
-    ),
+    main: () => <ClubChatRoom />,
   },
 ];
 
