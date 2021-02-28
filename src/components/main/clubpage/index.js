@@ -86,7 +86,7 @@ export default function ClubPage() {
               <div
                 className="club-image-container"
                 style={{
-                  backgroundImage: `url("https://static.toiimg.com/thumb/msid-65705780,imgsize-105691,width-800,height-600,resizemode-75/65705780.jpg")`,
+                  backgroundImage: `url(${fanclub.image})`,
                 }}
               ></div>
             </div>
