@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { fetchUser } from "../../api/fakeUserAPI";
 import { fetchData } from "../../api/fakeDataAPI";
@@ -76,7 +75,7 @@ export default function ProfilePage() {
             <div className="d-flex flex-nowrap col-6">
             {userClubs.map((dataItem, index) => {
               return (
-                <div key={index} className={`px-${index == 0 ? 0 : 3} py-3`}>
+                <div key={index} className={`px-${index === 0 ? 0 : 3} py-3`}>
                   <Club
                     clubName={dataItem.name}
                     clubDes={dataItem.des}

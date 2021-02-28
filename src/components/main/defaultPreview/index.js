@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Link, NavLink, useRouteMatch } from "react-router-dom";
+import { NavLink, useRouteMatch } from "react-router-dom";
 import Club from "../club";
 import { useAuth } from "../../auth/useAuth";
 import { fetchData } from "../../api/fakeDataAPI";
 import { fetchUserClubs } from "../../api/fakeUserAPI";
 
 export default function DefaultPreview({ title, endpoint, tags }) {
-  let { path, url } = useRouteMatch();
+  let { url } = useRouteMatch();
   const auth = useAuth();
   const [data, setData] = useState([]);
 

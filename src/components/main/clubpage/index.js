@@ -184,7 +184,7 @@ export default function ClubPage() {
             <div className="d-flex flex-nowrap col-6">
               {moreClubsdata.map((dataItem, index) => {
                 return (
-                  <div key={index} className={`px-${index == 0 ? 0 : 3} py-3`}>
+                  <div key={index} className={`px-${index === 0 ? 0 : 3} py-3`}>
                     <Club
                       clubName={dataItem.name}
                       clubDes={dataItem.des}

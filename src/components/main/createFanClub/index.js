@@ -7,6 +7,7 @@ import { AddClubData } from "../../api/fakeDataAPI";
 export default function CreateFanClub(props) {
   const [clubTitle, setTitle] = useState("");
   const [clubDes, setDes] = useState("");
+  const [imageFile, setImageFile] = useState("");
   const [clubImage, setImage] = useState(
     "https://img.washingtonpost.com/rf/image_1484w/WashingtonPost/Content/Blogs/celebritology/Images/Film_Review_Dark_Knight_Rises-085d2-4549.jpg?uuid=ryK-otD1EeGt8tVushDNzQ"
   );
@@ -32,6 +33,7 @@ export default function CreateFanClub(props) {
     setTitle("");
     setDes("");
     setImage("");
+    setImageFile("");
   };
 
   const createClub = (e) => {
@@ -75,6 +77,17 @@ export default function CreateFanClub(props) {
     history.replace(from);
   };
 
+  const photoUpload = (e) => {
+    e.preventDefault();
+    const reader = new FileReader();
+    const file = e.target.files[0];
+    reader.onloadend = () => {
+      setImageFile(file);
+      setImage(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <Modal
       {...props}
@@ -96,12 +109,12 @@ export default function CreateFanClub(props) {
       <Modal.Body>
         <div className="row">
           <div className="col-4">
-            <div
-              className="club-image-container bg-color-secondary"
-              style={{
-                backgroundImage: `url(${clubImage})`,
-              }}
-            ></div>
+            <label htmlFor="photo-upload" className="custom-file-upload fas">
+              <div className="img-upload">
+                <img for="photo-upload" src={clubImage} className="clubImg" />
+              </div>
+            </label>
+            <input id="photo-upload" type="file" onChange={photoUpload} />
           </div>
           <div className="col-8">
             <form onSubmit={createClub}>
