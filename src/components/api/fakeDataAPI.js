@@ -6,21 +6,55 @@ export const fetchData = (clubId) => {
   return club;
 };
 
-
 export const AddClubData = (club) => {
   data.push(club);
 };
 
 const data = [
   {
-    name: "Cats only",
+    name: "Cat Army",
     des: "The description of this club appear here.",
     image:
       "https://img.washingtonpost.com/rf/image_1484w/WashingtonPost/Content/Blogs/celebritology/Images/Film_Review_Dark_Knight_Rises-085d2-4549.jpg?uuid=ryK-otD1EeGt8tVushDNzQ",
     id: "cat_army",
-    topFans: ["Alan1619", "poby1", "maayami"],
-    members: ["maayami", "poby1", "Alan1619"],
-    admin: "maayami",
+    topFans: [
+      {
+        userName: "Maayami",
+        profileImageUrl:
+          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+      },
+      {
+        userName: "Maayami",
+        profileImageUrl:
+          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+      },
+      {
+        userName: "Maayami",
+        profileImageUrl:
+          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+      },
+    ],
+    members: [
+      {
+        userName: "Maayami",
+        profileImageUrl:
+          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+      },
+      {
+        userName: "Maayami",
+        profileImageUrl:
+          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+      },
+    ],
+    admin: "Maayami",
+    chats: [
+      {
+        authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+        author: "Mayank",
+        message: "This message was sent by you!!",
+        date: "",
+      },
+    ],
   },
   {
     name: "Andhadhun baatein",
@@ -28,9 +62,44 @@ const data = [
     image:
       "https://static.toiimg.com/thumb/msid-65705780,imgsize-105691,width-800,height-600,resizemode-75/65705780.jpg",
     id: "andhadhun_baatein",
-    topFans: ["Alan1619", "poby1", "maayami"],
-    admin: "maayami",
-    members: ["maayami", "poby1", "Alan1619"],
+    topFans: [
+      {
+        userName: "Maayami",
+        profileImageUrl:
+          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+      },
+      {
+        userName: "Maayami",
+        profileImageUrl:
+          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+      },
+      {
+        userName: "Maayami",
+        profileImageUrl:
+          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+      },
+    ],
+    admin: "Maayami",
+    members: [
+      {
+        userName: "Maayami",
+        profileImageUrl:
+          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+      },
+      {
+        userName: "Maayami",
+        profileImageUrl:
+          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+      },
+    ],
+    chats: [
+      {
+        authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+        author: "Mayank",
+        message: "This message was sent by you!!",
+        date: "",
+      },
+    ],
   },
   {
     name: "The MIB Force",
@@ -38,8 +107,43 @@ const data = [
     image:
       "http://sportofboxing.com/wp-content/uploads/2012/06/Challenging-Julius-Ballo-for-the-biggest-fan-club-is-Armando-Guerrero-500x320.jpg",
     id: "the_mib_force",
-    topFans: ["Alan1619", "poby1", "maayami"],
-    admin: "maayami",
-    members: ["maayami", "poby1", "Alan1619"],
+    topFans: [
+      {
+        userName: "Maayami",
+        profileImageUrl:
+          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+      },
+      {
+        userName: "Maayami",
+        profileImageUrl:
+          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+      },
+      {
+        userName: "Maayami",
+        profileImageUrl:
+          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+      },
+    ],
+    admin: "Maayami",
+    members: [
+      {
+        userName: "Maayami",
+        profileImageUrl:
+          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+      },
+      {
+        userName: "Maayami",
+        profileImageUrl:
+          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+      },
+    ],
+    chats: [
+      {
+        authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+        author: "Mayank",
+        message: "This message was sent by you!!",
+        date: "",
+      },
+    ],
   },
 ];

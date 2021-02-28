@@ -164,7 +164,7 @@ export default function Main() {
                   className="bg-color-secondary"
                   onClick={() => setModalShow(true)}
                 >
-                  <div className="custom-border-top py-3 px-3 text-white">
+                  <div className="custom-border-top py-3 px-lg-3 px-1 text-white">
                     <i className="fas fa-plus-circle icon-style fa-2x"></i>
                     New Club
                   </div>
@@ -213,14 +213,14 @@ export default function Main() {
                 </div>
                 <div className="d-flex px-3">
                   <img
-                    src="https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png"
+                    src={auth.user.profileImageUrl}
                     alt="Profile"
                     height="30"
                     style={{ borderRadius: "50%" }}
                     className="mx-2"
                   />
-                  <Link to={`/app/users/${"Maayami"}`} className="link-2">
-                    <p className="pt-1 px-1">Maayami</p>
+                  <Link to={`/app/users/${auth.user.userName}`} className="link-2">
+                    <p className="pt-1 px-1">{auth.user.userName}</p>
                   </Link>
                   <button className="pt-1 px-2 bg-color-primary border-0">
                     <i className="fas fa-chevron-down icon-style-2"></i>

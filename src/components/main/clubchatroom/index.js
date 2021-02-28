@@ -3,6 +3,9 @@ import io from "socket.io-client";
 import { Link, useParams } from "react-router-dom";
 import { Spinner } from "react-bootstrap";
 import "./index.css";
+import { useAuth } from "../../auth/useAuth";
+import { fetchData } from "../../api/fakeDataAPI";
+import { fetchUser } from "../../api/fakeUserAPI";
 
 const socket = io.connect("http://localhost:4000");
 
@@ -10,8 +13,11 @@ export default function ClubChatRoom({ userName, userProfilePic }) {
   const { chatRoomId } = useParams();
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [message, setMessage] = useState("");
-  const [chats, setChats] = useState([]);
+  const [chats, setChats] = useState(null);
+  const [members, setMembers] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isMember, setisMember] = useState(false);
+  let auth = useAuth();
 
   const textChange = (e) => {
     setMessage(e.target.value);
@@ -33,8 +39,14 @@ export default function ClubChatRoom({ userName, userProfilePic }) {
     }
   };
 
-  const getChatsfromApi = (chatRoomId) => {
-    setChats(chatsData);
+  const getFanclub = () => {
+    let sampleClub = fetchData(chatRoomId);
+    let sampleMembers = sampleClub.members;
+    setisMember(
+      sampleMembers.some((member) => member.userName === auth.user.userName)
+    );
+    setMembers(sampleMembers);
+    setChats(sampleClub.chats);
   };
 
   useEffect(() => {
@@ -44,16 +56,11 @@ export default function ClubChatRoom({ userName, userProfilePic }) {
         userName: userName,
         chatRoomId: chatRoomId,
       });
-      getChatsfromApi(chatRoomId);
-      setLoading(false);
+      getFanclub();
+      if (chats && members) setLoading(false);
     }
 
     socket.on("user-online", (activeUser) => {
-      console.log(
-        activeUser.userName,
-        " is online on chatRoom ",
-        activeUser.chatRoomId
-      );
       setOnlineUsers([...onlineUsers, activeUser.userName]);
       // to be updated
     });
@@ -71,6 +78,47 @@ export default function ClubChatRoom({ userName, userProfilePic }) {
     if (messageContainer)
       messageContainer.scrollTo(0, messageContainer.scrollHeight);
   }, [chatRoomId, chats, loading, userName, onlineUsers]);
+
+  const joinUser = () => {
+    setisMember(true);
+    // update require
+  };
+
+  const functionsix = () => {
+    if (isMember)
+      return (
+        <form action="#" onSubmit={onFormSubmit} id="send-container">
+          <div className="d-flex bg-color-secondary px-2 pt-1">
+            <button className="bg-color-secondary border-0">
+              <i className="fas fa-photo-video text-white"></i>
+            </button>
+            <input
+              type="text"
+              id="messageInput"
+              className="form-control bg-color-tertiary border-0 message-input text-white"
+              placeholder="Message"
+              value={message}
+              onChange={textChange}
+            />
+          </div>
+        </form>
+      );
+    else {
+      return (
+        <div className="d-flex bg-color-secondary">
+          <button
+            className="bg-color-yellow border-0 p-2 rounded"
+            onClick={joinUser}
+          >
+            Join now
+          </button>
+          <p className="mx-3 pt-2 fs-yellow">
+            You need to be a member of this club to send a message.
+          </p>
+        </div>
+      );
+    }
+  };
 
   return !loading ? (
     <div className="">
@@ -109,37 +157,19 @@ export default function ClubChatRoom({ userName, userProfilePic }) {
               );
             })}
           </div>
-          <div className="m-2">
-            <form action="#" onSubmit={onFormSubmit} id="send-container">
-              <div className="d-flex bg-color-secondary px-2 pt-1">
-                <button className="bg-color-secondary border-0">
-                  <i className="fas fa-photo-video text-white"></i>
-                </button>
-                <input
-                  type="text"
-                  id="messageInput"
-                  className="form-control bg-color-tertiary border-0 message-input text-white"
-                  placeholder="Message"
-                  value={message}
-                  onChange={textChange}
-                />
-              </div>
-            </form>
-          </div>
+          <div className="m-2">{functionsix()}</div>
         </div>
         <div className=" col-2 bg-color-secondary border-right custom-border-right mt-3  pt-2 px-4">
           <div className="custom-border-bottom">
             <p className="fs-small py-1">Members</p>
           </div>
           <div className="pt-3 participants-container overflow-auto">
-            {chatsData.map((item, index) => {
+            {members.map((item, index) => {
               return (
                 <div className="d-flex py-2" key={index}>
                   <div>
                     <img
-                      src={
-                        "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png"
-                      }
+                      src={item.profileImageUrl}
                       alt="Profile"
                       height="30"
                       style={{ borderRadius: "50%" }}
@@ -149,10 +179,10 @@ export default function ClubChatRoom({ userName, userProfilePic }) {
                   <div>
                     <p className="fs-smaller px-2 pt-1">
                       <Link
-                        to={`/app/users/${"Maayami"}`}
+                        to={`/app/users/${item.userName}`}
                         className="link link-hover-underline text-white"
                       >
-                        MiyMaayami
+                        {item.userName}
                       </Link>
                       <span className="fs-smallest px-2"> 1 hour</span>
                     </p>
@@ -165,136 +195,10 @@ export default function ClubChatRoom({ userName, userProfilePic }) {
       </div>
     </div>
   ) : (
-    <div>
+    <div className="d-flex py-4">
       <Spinner animation="border" role="status"></Spinner>
+
+      <p className="fs-primary fs-medium px-3">Loading...</p>
     </div>
   );
 }
-
-const chatsData = [
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-  {
-    authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-    author: "Mayank",
-    message: "This message was sent by you!!",
-  },
-];

@@ -40,9 +40,32 @@ export default function CreateFanClub(props) {
     sampleClub.image =
       "https://img.washingtonpost.com/rf/image_1484w/WashingtonPost/Content/Blogs/celebritology/Images/Film_Review_Dark_Knight_Rises-085d2-4549.jpg?uuid=ryK-otD1EeGt8tVushDNzQ";
     sampleClub.id = clubID;
-    sampleClub.topFans = [userName];
+    sampleClub.topFans = [
+      {
+        userName: "Maayami",
+        profileImageUrl:
+          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+      },
+    ];
     sampleClub.admin = userName;
-    sampleClub.members = [userName];
+    sampleClub.members = [
+      {
+        userName: "Maayami",
+        profileImageUrl:
+          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+      },
+    ];
+    sampleClub.chats = [
+      {
+        authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+        author: "Mayank",
+        profileImageUrl:
+          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
+
+        message: `${auth.user.userName}, joined the room`,
+        date: "",
+      },
+    ];
 
     AddClubData(sampleClub);
     resetStates();
