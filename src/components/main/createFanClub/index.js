@@ -33,7 +33,9 @@ export default function CreateFanClub(props) {
     setTitle("");
     setDes("");
     setImage("");
-    setImageFile("");
+    setImage(
+      "https://img.washingtonpost.com/rf/image_1484w/WashingtonPost/Content/Blogs/celebritology/Images/Film_Review_Dark_Knight_Rises-085d2-4549.jpg?uuid=ryK-otD1EeGt8tVushDNzQ"
+    );
   };
 
   const createClub = (e) => {
@@ -41,8 +43,7 @@ export default function CreateFanClub(props) {
     let sampleClub = {};
     sampleClub.name = clubTitle;
     sampleClub.des = clubDes;
-    sampleClub.image =
-      "https://img.washingtonpost.com/rf/image_1484w/WashingtonPost/Content/Blogs/celebritology/Images/Film_Review_Dark_Knight_Rises-085d2-4549.jpg?uuid=ryK-otD1EeGt8tVushDNzQ";
+    sampleClub.image = clubImage;
     sampleClub.id = clubID;
     sampleClub.topFans = [
       {
@@ -109,10 +110,13 @@ export default function CreateFanClub(props) {
       <Modal.Body>
         <div className="row">
           <div className="col-4">
-            <label htmlFor="photo-upload" className="custom-file-upload fas">
-              <div className="img-upload">
-                <img for="photo-upload" src={clubImage} className="clubImg" />
-              </div>
+            <label htmlFor="photo-upload" className="w-100">
+              <div
+                className="club-image-container"
+                style={{
+                  backgroundImage: `url(${clubImage})`,
+                }}
+              ></div>
             </label>
             <input id="photo-upload" type="file" onChange={photoUpload} />
           </div>
