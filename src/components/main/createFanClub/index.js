@@ -7,7 +7,9 @@ import { AddClubData } from "../../api/fakeDataAPI";
 export default function CreateFanClub(props) {
   const [clubTitle, setTitle] = useState("");
   const [clubDes, setDes] = useState("");
-  const [clubImage, setImage] = useState("");
+  const [clubImage, setImage] = useState(
+    "https://img.washingtonpost.com/rf/image_1484w/WashingtonPost/Content/Blogs/celebritology/Images/Film_Review_Dark_Knight_Rises-085d2-4549.jpg?uuid=ryK-otD1EeGt8tVushDNzQ"
+  );
   const [clubID, setClubID] = useState("");
   let auth = useAuth();
   let userName = auth.user.userName;
@@ -97,7 +99,7 @@ export default function CreateFanClub(props) {
             <div
               className="club-image-container bg-color-secondary"
               style={{
-                backgroundImage: `${clubImage}`,
+                backgroundImage: `url(${clubImage})`,
               }}
             ></div>
           </div>
