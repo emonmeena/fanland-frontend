@@ -72,6 +72,7 @@ const routes = [
     path: "/clubs/:clubId",
     main: () => <ClubPage />,
   },
+
   {
     path: "/users/:userName",
     main: () => <ProfilePage />,
@@ -219,7 +220,10 @@ export default function Main() {
                     style={{ borderRadius: "50%" }}
                     className="mx-2"
                   />
-                  <Link to={`/app/users/${auth.user.userName}`} className="link-2">
+                  <Link
+                    to={`/app/users/${auth.user.userName}`}
+                    className="link-2"
+                  >
                     <p className="pt-1 px-1">{auth.user.userName}</p>
                   </Link>
                   <button className="pt-1 px-2 bg-color-primary border-0">
