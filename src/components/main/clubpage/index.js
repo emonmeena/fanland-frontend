@@ -15,6 +15,7 @@ export default function ClubPage() {
   const [isLiked, setisLiked] = useState(false);
   const [isMember, setisMember] = useState(false);
   const { clubId } = useParams();
+  console.log(clubId);
   let auth = useAuth();
 
   const fetchClub = () => {
@@ -54,7 +55,7 @@ export default function ClubPage() {
 
   useEffect(() => {
     fetchClub();
-  }, []);
+  }, [clubId]);
 
   const handleLikeClub = () => {
     setisLiked(!isLiked);
