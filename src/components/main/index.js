@@ -15,7 +15,6 @@ import CreateFanClub from "./createFanClub";
 import DefaultPreview from "./defaultPreview";
 import ProfilePage from "./profilePage";
 import { useAuth } from "../auth/useAuth";
-import { Dropdown } from "react-bootstrap";
 
 const routes = [
   {
@@ -80,15 +79,6 @@ export default function Main() {
   let { path, url } = useRouteMatch();
   const [modalShow, setModalShow] = useState(false);
   const history = useHistory();
-
-  const editProfile = () => {
-    console.log("editProfile()");
-  };
-
-  const logout = () => {
-    console.log("logout()");
-  };
-
   return (
     <Router>
       <CreateFanClub show={modalShow} onHide={() => setModalShow(false)} />
@@ -220,38 +210,9 @@ export default function Main() {
                   >
                     <p className="pt-1 px-1">{auth.user.userName}</p>
                   </Link>
-                  {/* <button className="pt-1 px-2 bg-color-primary border-0">
+                  <button className="pt-1 px-2 bg-color-primary border-0">
                     <i className="fas fa-chevron-down icon-style-2"></i>
-                  </button> */}
-                  <div className="pt-1">
-                    <Dropdown>
-                      <Dropdown.Toggle
-                        bsPrefix="bg-color-primary text-white px-1"
-                        as="button"
-                        id="dropdown-basic"
-                      >
-                        <i className="fas fs-secondary fa-chevron-down icon-style-2"></i>
-                      </Dropdown.Toggle>
-
-                      <Dropdown.Menu bsPrefix="bg-color-tertiary">
-                        <Dropdown.Item
-                          onClick={editProfile}
-                          className="fs-secondary"
-                        >
-                          Edit
-                        </Dropdown.Item>
-                        <Dropdown.Item href="#" className="fs-secondary">
-                          Settings
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                          onClick={logout}
-                          className="fs-secondary"
-                        >
-                          Logout
-                        </Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown>
-                  </div>
+                  </button>
                 </div>
                 {/* incomplete */}
               </div>
