@@ -5,7 +5,6 @@ import { fetchUserClubs } from "../../api/fakeUserAPI";
 import Club from "../club";
 import PageNotFound from "../pageNotFound";
 import { useAuth } from "../../auth/useAuth";
-import { Dropdown } from "react-bootstrap";
 
 export default function ClubPage() {
   const [fanclub, setFanclub] = useState(null);
@@ -15,7 +14,6 @@ export default function ClubPage() {
   const [activeState, setActiveState] = useState("active");
   const [isLiked, setisLiked] = useState(false);
   const [isMember, setisMember] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const { clubId } = useParams();
 
   let auth = useAuth();
@@ -30,8 +28,6 @@ export default function ClubPage() {
       let memberBool = sampleClub.members.some(
         (member) => member.userName === auth.user.userName
       );
-      let adminBool = sampleClub.adminMembers.includes(auth.user.userName);
-      setIsAdmin(adminBool);
       setisMember(memberBool);
       if (memberBool) {
         setJoinState("Leave Club");
@@ -115,10 +111,10 @@ export default function ClubPage() {
                     {fanclub.members.length}
                   </p>
                 </div>
-                <div className="pt-3 d-flex">
+                <div className="pt-3">
                   <button
                     onClick={handleJoinButtonClick}
-                    className={`btn rounded-pill p-2 px-3 ${activeState}`}
+                    className={`btn rounded p-2 ${activeState}`}
                   >
                     {joinState}
                   </button>
@@ -133,47 +129,11 @@ export default function ClubPage() {
                     )}
                   </button>
                   <Link to={`/app/chats/${clubId}`}>
-                    <button className="border-0 bg-color-primary fs-primary pt-2 text-white scale">
+                    <button className="border-0 bg-color-primary fs-primary text-white scale">
                       <i className="fas fa-comments"></i>
                       <span className="mx-2">Conversations</span>
                     </button>
                   </Link>
-                  {isAdmin ? (
-                    <div className="pt-2">
-                      <Dropdown>
-                        <Dropdown.Toggle
-                          bsPrefix="bg-color-primary text-white rounded-circle px-1 border"
-                          as="button"
-                          id="dropdown-basic"
-                        >
-                          <i className="fas fa-ellipsis-h"></i>
-                        </Dropdown.Toggle>
-
-                        <Dropdown.Menu bsPrefix="bg-color-tertiary mt-2">
-                          <Dropdown.Item
-                            href="#/action-1"
-                            className="fs-secondary"
-                          >
-                            Edit
-                          </Dropdown.Item>
-                          <Dropdown.Item
-                            href="#/action-2"
-                            className="fs-secondary"
-                          >
-                            Settings
-                          </Dropdown.Item>
-                          <Dropdown.Item
-                            href="#/action-3"
-                            className="fs-secondary"
-                          >
-                            Delete Fanclub
-                          </Dropdown.Item>
-                        </Dropdown.Menu>
-                      </Dropdown>
-                    </div>
-                  ) : (
-                    <div></div>
-                  )}
                 </div>
               </div>
             </div>
