@@ -47,14 +47,27 @@ const data = [
       },
     ],
     admin: "Maayami",
+    adminMembers: ["Maayami", "Mayank"],
+    // iski jagah creator karde
     chats: [
       {
         authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
         author: "Mayank",
-        message: "This message was sent by you!!",
+        message: [
+          {
+            type: 0,
+            message: "Text message, looks good with out any image init.",
+          },
+          {
+            type: 1,
+            message:
+              "https://img.washingtonpost.com/rf/image_1484w/WashingtonPost/Content/Blogs/celebritology/Images/Film_Review_Dark_Knight_Rises-085d2-4549.jpg?uuid=ryK-otD1EeGt8tVushDNzQ",
+          },
+        ],
         date: "",
       },
     ],
+    bannedUsers: [],
   },
   {
     name: "Andhadhun baatein",
@@ -80,6 +93,8 @@ const data = [
       },
     ],
     admin: "Maayami",
+    adminMembers: ["Maayami", "Mayank"],
+
     members: [
       {
         userName: "Maayami",
@@ -100,6 +115,7 @@ const data = [
         date: "",
       },
     ],
+    bannedUsers: [],
   },
   {
     name: "The MIB Force",
@@ -125,6 +141,8 @@ const data = [
       },
     ],
     admin: "Maayami",
+    adminMembers: ["Maayami", "Mayank"],
+
     members: [
       {
         userName: "Maayami",
@@ -145,5 +163,6 @@ const data = [
         date: "",
       },
     ],
+    bannedUsers: [],
   },
 ];
