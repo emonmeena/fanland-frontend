@@ -40,6 +40,7 @@ export default function CreateFanClub(props) {
 
   const createClub = (e) => {
     e.preventDefault();
+    console.log(imageFile);
     let sampleClub = {};
     sampleClub.name = clubTitle;
     sampleClub.des = clubDes;
