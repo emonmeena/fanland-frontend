@@ -122,58 +122,59 @@ export default function ClubPage() {
                   >
                     {joinState}
                   </button>
-                  <button
-                    className="border-0 bg-color-primary fs-primary text-white mx-3 scale"
-                    onClick={handleLikeClub}
-                  >
-                    {isLiked ? (
-                      <i className="fas fa-heart"></i>
-                    ) : (
-                      <i className="far fa-heart"></i>
-                    )}
-                  </button>
-                  <Link to={`/app/chats/${clubId}`}>
-                    <button className="border-0 bg-color-primary fs-primary pt-2 text-white scale">
-                      <i className="fas fa-comments"></i>
-                      <span className="mx-2">Conversations</span>
+                  <div className="d-flex mx-3">
+                    <button
+                      className="border-0 bg-color-primary fs-primary text-white scale"
+                      onClick={handleLikeClub}
+                    >
+                      {isLiked ? (
+                        <i className="fas fa-heart"></i>
+                      ) : (
+                        <i className="far fa-heart"></i>
+                      )}
                     </button>
-                  </Link>
-                  {isAdmin ? (
-                    <div className="pt-2">
-                      <Dropdown>
-                        <Dropdown.Toggle
-                          bsPrefix="bg-color-primary text-white rounded-circle px-1 border"
-                          as="button"
-                          id="dropdown-basic"
-                        >
-                          <i className="fas fa-ellipsis-h"></i>
-                        </Dropdown.Toggle>
+                    <Link to={`/app/chats/${clubId}`}>
+                      <button className="border-0 bg-color-primary fs-primary pt-2 mx-2 text-white scale">
+                        <i className="fas fa-comments"></i>
+                      </button>
+                    </Link>
+                    {isAdmin ? (
+                      <div className="pt-2">
+                        <Dropdown>
+                          <Dropdown.Toggle
+                            bsPrefix="bg-color-primary text-white rounded-circle px-1 border"
+                            as="button"
+                            id="dropdown-basic"
+                          >
+                            <i className="fas fa-ellipsis-h"></i>
+                          </Dropdown.Toggle>
 
-                        <Dropdown.Menu bsPrefix="bg-color-tertiary mt-2">
-                          <Dropdown.Item
-                            href="#/action-1"
-                            className="fs-secondary"
-                          >
-                            Edit
-                          </Dropdown.Item>
-                          <Dropdown.Item
-                            href="#/action-2"
-                            className="fs-secondary"
-                          >
-                            Settings
-                          </Dropdown.Item>
-                          <Dropdown.Item
-                            href="#/action-3"
-                            className="fs-secondary"
-                          >
-                            Delete Fanclub
-                          </Dropdown.Item>
-                        </Dropdown.Menu>
-                      </Dropdown>
-                    </div>
-                  ) : (
-                    <div></div>
-                  )}
+                          <Dropdown.Menu bsPrefix="bg-color-tertiary mt-2">
+                            <Dropdown.Item
+                              href="#/action-1"
+                              className="fs-secondary"
+                            >
+                              Edit
+                            </Dropdown.Item>
+                            <Dropdown.Item
+                              href="#/action-2"
+                              className="fs-secondary"
+                            >
+                              Settings
+                            </Dropdown.Item>
+                            <Dropdown.Item
+                              href="#/action-3"
+                              className="fs-secondary"
+                            >
+                              Delete Fanclub
+                            </Dropdown.Item>
+                          </Dropdown.Menu>
+                        </Dropdown>
+                      </div>
+                    ) : (
+                      <div></div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

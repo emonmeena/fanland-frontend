@@ -68,3 +68,7 @@
 .member-options {
   visibility: hidden;
 }
+
+.highlight-message{
+  border-left: solid yellow 2px;
+}

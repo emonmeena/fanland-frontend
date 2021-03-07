@@ -16,7 +16,7 @@ export const useAuth = () => {
 function useProvideAuth() {
   const [user, setUser] = useState(null);
 
-  const signin = (userName, callback) => {
+  const signin = (userName, userPassword, callback) => {
     let userData = fetchUser(userName);
     if (userData) {
       setUser(userData);

@@ -86,7 +86,7 @@ export default function Main() {
   };
 
   const logout = () => {
-    console.log("logout()");
+    auth.signout();
   };
 
   return (
