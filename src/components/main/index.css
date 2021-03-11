@@ -14,8 +14,6 @@
     background: #555;
   }  */
 
-
-
 input[type="file"] {
   display: none;
 }
@@ -45,7 +43,7 @@ input[type="file"] {
   overflow: hidden;
   /* border-radius: 50%; */
 }
-.clubImg{
+.clubImg {
   height: 250px;
   width: 230px;
 }
@@ -207,6 +205,13 @@ button:hover {
 .nav-btn-hover:hover {
   color: white;
   cursor: pointer;
+}
+
+.err-mssg {
+  color: red;
+}
+.error-auth{
+  border: solid red ;
 }
 
 .scale:hover {

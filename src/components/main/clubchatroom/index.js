@@ -32,6 +32,7 @@ export default function ClubChatRoom() {
   const onFormSubmit = (e) => {
     e.preventDefault();
     if (message !== "") {
+      console.log(image, " File: ");
       socket.emit("chat-message", {
         authorImage: userProfilePic,
         author: userName,
@@ -65,7 +66,6 @@ export default function ClubChatRoom() {
   };
 
   const handleSocketConnection = () => {
-    console.log("inside the socket function");
     socket.emit("user-active", {
       userName: userName,
       chatRoomId: chatRoomId,
@@ -99,7 +99,6 @@ export default function ClubChatRoom() {
   };
 
   const scroll = () => {
-    console.log("scroll wala");
     let messageContainer = document.getElementById("message-container");
     messageContainer.scrollTo(0, messageContainer.scrollHeight);
   };
@@ -110,9 +109,7 @@ export default function ClubChatRoom() {
   };
 
   useEffect(() => {
-    console.log("useEffect");
     if (viewpoint === 0) {
-      console.log("socket and initial Data fetch");
       getFanclub();
     } else if (viewpoint === 1) {
       if (!isSocketOn) handleSocketConnection();
@@ -131,7 +128,12 @@ export default function ClubChatRoom() {
             >
               <i className="fas fa-photo-video text-white"></i>
             </label>
-            <input id="photo-upload" type="file" onChange={photoUpload} />
+            <input
+              id="photo-upload"
+              type="file"
+              accept="image/*"
+              onChange={photoUpload}
+            />
             <input
               type="text"
               id="messageInput"
@@ -284,12 +286,10 @@ export default function ClubChatRoom() {
 
   switch (viewpoint) {
     case 1:
-      console.log("render");
       return viewMain();
     case 2:
       return <div>Something went wrong, please try after some time.</div>;
     default:
-      console.log("loading...");
       return (
         <div>
           <Spinner animation="border" role="status"></Spinner>

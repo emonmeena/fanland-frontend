@@ -2,30 +2,37 @@ import React, { useEffect, useState } from "react";
 import { NavLink, useRouteMatch } from "react-router-dom";
 import Club from "../club";
 import { useAuth } from "../../auth/useAuth";
-import { fetchData } from "../../api/fakeDataAPI";
-import { fetchUserClubs } from "../../api/fakeUserAPI";
+import djangoRESTAPI from "../../api/djangoRESTAPI";
 
 export default function DefaultPreview({ title, endpoint, tags }) {
   let { url } = useRouteMatch();
   const auth = useAuth();
   const [data, setData] = useState([]);
+  const [isLoading, setLoading] = useState(true);
 
-  const fetchClubs = () => {
-    let sampleData = [];
-    let clubNames = fetchUserClubs(auth.user.userName, endpoint);
-
-    clubNames.map((clubId) => {
-      let sampleClub = fetchData(clubId);
-      sampleData.push(sampleClub);
-    });
-    setData(sampleData);
+  const fetchClubs = async () => {
+    await djangoRESTAPI
+      .get(`userdetails/${auth.user.id}/${endpoint}`)
+      .then((res) => {
+        res.data.map((clubId) => {
+          djangoRESTAPI
+            .get(`fanclubs_basic/${clubId}`)
+            .then((res) => setData((data) => [...data, res.data]));
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    setLoading(false);
   };
 
   useEffect(() => {
     fetchClubs();
-  }, []);
+  }, [endpoint, tags]);
 
-  return (
+  return isLoading ? (
+    <div>Loading...</div>
+  ) : (
     <div className="px-3 overflow-auto container-home">
       <div>
         <p className="pt-5 fs-large fw-bolder ">{title}</p>
@@ -54,15 +61,17 @@ export default function DefaultPreview({ title, endpoint, tags }) {
         {/* <p className="fw-bold pb-1"></p> */}
         <div className="custom-border-top pt-3">
           <div className="clubs-container">
-            {data.map((dataItem, index) => (
-              <Club
-                key={index}
-                clubName={dataItem.name}
-                clubDes={dataItem.des}
-                clubId={dataItem.id}
-                imageurl={dataItem.image}
-              />
-            ))}
+            {data.map((dataItem) => {
+              return (
+                <Club
+                  key={dataItem.id}
+                  clubName={dataItem.name}
+                  clubDes={dataItem.des}
+                  clubId={dataItem.id}
+                  imageurl={dataItem.image}
+                />
+              );
+            })}
           </div>
         </div>
       </div>

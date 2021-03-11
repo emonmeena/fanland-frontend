@@ -5,6 +5,7 @@ import { useAuth } from "./useAuth";
 export default function SignIn() {
   const [userName, setUserName] = useState("");
   const [userPassword, setPassword] = useState("");
+  const [errorState, setErrorState] = useState("");
   let history = useHistory();
   let location = useLocation();
   let auth = useAuth();
@@ -13,9 +14,18 @@ export default function SignIn() {
 
   let login = (e) => {
     e.preventDefault();
-    auth.signin(userName, userPassword, () => {
-      history.replace(from);
-    });
+    auth.signin(
+      userName,
+      userPassword,
+      () => {
+        history.replace(from);
+      },
+      () => {
+        setErrorState("error-auth");
+        setUserName("");
+        setPassword("");
+      }
+    );
   };
 
   const togglePasswordVisibility = () => {
@@ -26,16 +36,22 @@ export default function SignIn() {
 
   return (
     <div className="container">
-      SignIn
+      <p>SignIn</p>
+      {errorState === "" ? (
+        <p></p>
+      ) : (
+        <p className="err-mssg">Username or password is incorrect.</p>
+      )}
       <form onSubmit={login} className="mt-3 col-5">
         <div className="form-group">
           <label htmlFor="exampleInputEmail1">Username</label>
           <input
             type="text"
-            className="form-control"
+            className={`form-control ${errorState}`}
             id="exampleInputEmail1"
             placeholder="Your Username"
             value={userName}
+            onFocus={() => setErrorState("")}
             onChange={(e) => {
               setUserName(e.target.value);
             }}
@@ -45,10 +61,11 @@ export default function SignIn() {
           <label htmlFor="exampleInputPassword1">Password</label>
           <input
             type="password"
-            className="form-control"
+            className={`form-control ${errorState}`}
             id="exampleInputPassword1"
             placeholder="Password"
             value={userPassword}
+            onFocus={() => setErrorState("")}
             onChange={(e) => {
               setPassword(e.target.value);
             }}
