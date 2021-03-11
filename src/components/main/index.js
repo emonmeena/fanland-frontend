@@ -66,7 +66,7 @@ const routes = [
   },
 
   {
-    path: "/users/:userName",
+    path: "/users/:userId",
     main: () => <ProfilePage />,
   },
   {
