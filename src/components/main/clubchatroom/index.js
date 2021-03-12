@@ -4,65 +4,108 @@ import { Link, useParams } from "react-router-dom";
 import { Dropdown, Spinner } from "react-bootstrap";
 import "./index.css";
 import { useAuth } from "../../auth/useAuth";
-import { fetchData } from "../../api/fakeDataAPI";
-import { Chat } from "@material-ui/icons";
+import djangoRESTAPI from "../../api/djangoRESTAPI";
 
 const socket = io.connect("http://localhost:4000");
 
 export default function ClubChatRoom() {
   const [viewpoint, setView] = useState(0);
   const [fanclub, setFanclub] = useState(null);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [clubMmebers, setClubMembers] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState(null);
+  const [isImageMessage, setIsImageMessage] = useState(false);
   const [isMember, setisMember] = useState(false);
-  const [isAdmin, setAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isSocketOn, setSocket] = useState(false);
-  const [imageFile, setImageFile] = useState(null);
   const [image, setImage] = useState(null);
+  const [file, setImageFile] = useState(null);
   const { chatRoomId } = useParams();
 
   let auth = useAuth();
-  let userName = auth.user.userName;
-  let userProfilePic = auth.user.profileImageUrl;
+  let userId = auth.user.id;
+  let userName = auth.user.user_name;
+  let userProfilePic = auth.user.user_profile_image;
+
+  useEffect(() => {
+    if (viewpoint === 0 && !fanclub) {
+      getFanclub();
+    } else if (viewpoint === 1) {
+      if (!isSocketOn) handleSocketConnection();
+      scroll();
+    }
+  }, [chatRoomId, viewpoint, fanclub]);
 
   const textChange = (e) => {
     setMessage(e.target.value);
   };
 
-  const onFormSubmit = (e) => {
+  const onFormSubmit = async (e) => {
     e.preventDefault();
-    if (message !== "") {
-      console.log(image, " File: ");
-      socket.emit("chat-message", {
-        authorImage: userProfilePic,
-        author: userName,
-        message: message,
-      });
-      // queryselector
+    if (message || file) {
+      let form_data = new FormData();
+      form_data.append("chatroom_id", chatRoomId);
+      form_data.append("author_image", userProfilePic);
+      form_data.append("author_name", userName);
+      form_data.append("author_id", userId);
+      form_data.append("is_image_message", isImageMessage);
+      if (isImageMessage) form_data.append("media", file, file.name);
+      form_data.append("message", message);
 
-      let sampleChat = {
-        author: userName,
-        authorImage: userProfilePic,
-        date: "",
-        message: message,
-      };
-      setFanclub({ ...fanclub, chats: [...fanclub.chats, sampleChat] });
+      await djangoRESTAPI
+        .post(`chats/${chatRoomId}/`, form_data, {
+          headers: {
+            "content-type": "multipart/form-data",
+          },
+        })
+        .then((res) => {
+          let sampleChat = {
+            author_id: userId,
+            chatRoomId: chatRoomId,
+            author_name: userName,
+            author_image: userProfilePic,
+            message: message,
+            media: res.data,
+            is_image_message: isImageMessage,
+          };
+          socket.emit("chat-message", sampleChat);
+          setChatMessages((data) => [...data, sampleChat]);
+        })
+        .catch((err) => console.log(err));
+
       setMessage("");
+      setIsImageMessage(false);
+      setImageFile(null);
+      setImage(null);
+      scroll();
     }
   };
 
-  const getFanclub = () => {
-    let sampleClub = fetchData(chatRoomId);
-    if (sampleClub) {
-      let adminBool = sampleClub.adminMembers.includes(userName);
-      let memberBool = sampleClub.members.some(
-        (member) => member.userName === userName
-      );
-      setFanclub(sampleClub);
-      setAdmin(adminBool);
-      setisMember(memberBool);
-      setView(1);
-    } else setView(2);
+  const getFanclub = async () => {
+    await djangoRESTAPI
+      .get(`fanclubs/${chatRoomId}`)
+      .then(async (res) => {
+        await djangoRESTAPI
+          .get(`chats/${chatRoomId}`)
+          .then((res) => setChatMessages(res.data));
+        res.data.members.map(async (userId) => {
+          await djangoRESTAPI
+            .get(`userdetails_basic/${userId}`)
+            .then((userdetailBasic) => {
+              setClubMembers((members) => [...members, userdetailBasic.data]);
+            })
+            .catch((err) => console.log(err));
+        });
+        setFanclub(res.data);
+        setIsAdmin(res.data.admin_members.includes(userId));
+        setisMember(res.data.members.includes(userId));
+        setView(1);
+      })
+      .catch((err) => {
+        console.log(err);
+        setView(2);
+      });
   };
 
   const handleSocketConnection = () => {
@@ -77,12 +120,7 @@ export default function ClubChatRoom() {
 
     socket.on("receive-message", (chat) => {
       // queryselector
-      let sampleChat = {
-        authorImage: chat.authorImage,
-        author: chat.author,
-        message: chat.message,
-      };
-      setFanclub({ ...fanclub, chats: [...fanclub.chats, sampleChat] });
+      setChatMessages((data) => [...data, chat]);
     });
     setSocket(true);
   };
@@ -96,6 +134,7 @@ export default function ClubChatRoom() {
       setImage(reader.result);
     };
     reader.readAsDataURL(file);
+    setIsImageMessage(true);
   };
 
   const scroll = () => {
@@ -107,15 +146,6 @@ export default function ClubChatRoom() {
     setisMember(true);
     // update require
   };
-
-  useEffect(() => {
-    if (viewpoint === 0) {
-      getFanclub();
-    } else if (viewpoint === 1) {
-      if (!isSocketOn) handleSocketConnection();
-      scroll();
-    }
-  }, [chatRoomId, viewpoint, fanclub]);
 
   const functionsix = () => {
     if (isMember)
@@ -167,7 +197,7 @@ export default function ClubChatRoom() {
       <div className={`message-box py-2 px-1 d-flex justify-content-between`}>
         <div className="d-flex">
           <img
-            src={chat.authorImage}
+            src={chat.author_image}
             alt="Profile"
             height="46"
             style={{ borderRadius: "50%" }}
@@ -175,19 +205,33 @@ export default function ClubChatRoom() {
           />
           <p className="fs-smaller px-3">
             <Link
-              to={`/app/users/${chat.author}`}
+              to={`/app/users/${chat.author_id}`}
               className="link link-hover-underline"
             >
               <span className="fw-bolder text-white fs-medium">
-                {chat.author}
+                {chat.author_name}
               </span>
             </Link>
-            <span className="fs-smallest px-2"> Today, 6 PM</span>
+            <span className="fs-smallest px-2">
+              {" "}
+              {chat.date}, {chat.time}{" "}
+            </span>
             <br />
-            {chat.message}
+            {chat.is_image_message ? (
+              <div>
+                <img
+                  className="my-2"
+                  style={{ maxHeight: "300px" }}
+                  src={`http://localhost:8000${chat.media}`}
+                />
+              </div>
+            ) : (
+              ""
+            )}
+            {chat.message ? chat.message : ""}
           </p>
         </div>
-        {chat.author === userName || isAdmin ? (
+        {chat.author_id === userId || isAdmin ? (
           <div className="pt-2 chat-option px-4">
             <Dropdown>
               <Dropdown.Toggle
@@ -200,7 +244,7 @@ export default function ClubChatRoom() {
 
               <Dropdown.Menu align="left" bsPrefix="bg-color-secondary">
                 <Dropdown.Item href="#/action-1" className="fs-secondary">
-                  Remove Post
+                  Delete Post
                 </Dropdown.Item>
                 {isAdmin ? (
                   <Dropdown.Item href="#/action-2" className="fs-secondary">
@@ -231,11 +275,40 @@ export default function ClubChatRoom() {
               className="custom-overflow py-2 chat-box bg-color-primary mx-2"
               id="message-container"
             >
-              {fanclub.chats.map((chat, index) => {
-                // let type = chat.author === userName ? "send" : "receive";
-                return <ComponentChat key={index} chat={chat} />;
+              {chatMessages.map((chat) => {
+                return <ComponentChat key={chat.id} chat={chat} />;
               })}
             </div>
+            {isImageMessage ? (
+              <div
+                className="mx-2 position-absolute p-2 bg-color-tertiary"
+                style={{ bottom: 60 }}
+              >
+                <div className="d-flex justify-content-between">
+                  <p className="fw-bold">Image Preview</p>
+                  <button
+                    className="bg-color-tertiary text-white"
+                    onClick={() => {
+                      setIsImageMessage(false);
+                      setImageFile(null);
+                    }}
+                  >
+                    <i className="fa fa-times"></i>
+                  </button>
+                </div>
+                <img
+                  className="my-2"
+                  style={{ maxHeight: "300px" }}
+                  src={image}
+                />
+                <p className="fs-small fs-secondary">
+                  Press enter to upload the selected image to the fanland
+                  server.
+                </p>
+              </div>
+            ) : (
+              <p></p>
+            )}
             <div className="m-2">{functionsix()}</div>
           </div>
           <div className=" col-2 bg-color-secondary border-right custom-border-right mt-3  pt-2 px-4">
@@ -243,12 +316,12 @@ export default function ClubChatRoom() {
               <p className="fs-small py-1">Members</p>
             </div>
             <div className="pt-3 participants-container overflow-auto">
-              {fanclub.members.map((item, index) => {
+              {clubMmebers.map((item) => {
                 return (
-                  <div className="d-flex py-2 member-box" key={index}>
+                  <div className="d-flex py-2 member-box" key={item.user_id}>
                     <div>
                       <img
-                        src={item.profileImageUrl}
+                        src={item.user_profile_image}
                         alt="Profile"
                         height="30"
                         style={{ borderRadius: "50%" }}
@@ -258,10 +331,10 @@ export default function ClubChatRoom() {
                     <div>
                       <p className="fs-smaller px-2 pt-1">
                         <Link
-                          to={`/app/users/${item.userName}`}
+                          to={`/app/users/${item.user_name}`}
                           className="link link-hover-underline text-white"
                         >
-                          {item.userName}
+                          {item.user_name}
                         </Link>
                         <span className="fs-smallest px-2"> 1 hour</span>
                       </p>

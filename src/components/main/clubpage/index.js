@@ -8,6 +8,8 @@ import djangoRESTAPI from "../../api/djangoRESTAPI";
 
 export default function ClubPage() {
   const [fanclub, setFanclub] = useState(null);
+  const [followingClubs, setFollowingClubs] = useState(null);
+  const [likedClubs, setLikedClubs] = useState(null);
   const [moreClubsdata, setMoreData] = useState([]);
   const [topFans, setTopFans] = useState([]);
   const [viewpoint, setView] = useState(0);
@@ -20,6 +22,8 @@ export default function ClubPage() {
   const { clubId } = useParams();
 
   let auth = useAuth();
+  let userId = auth.user.id;
+  let userName = auth.user.user_name;
 
   const fetchClub = async () => {
     await djangoRESTAPI
@@ -27,17 +31,22 @@ export default function ClubPage() {
       .then(async (res) => {
         setFanclub(res.data);
         await djangoRESTAPI
+          .get(`userdetails/${userId}/following_clubs`)
+          .then((followingData) => setFollowingClubs(followingData.data));
+
+        await djangoRESTAPI
           .get(`userdetails/${res.data.creator}/user_name`)
           .then((response) => setCreator(response.data));
         await djangoRESTAPI
-          .get(`userdetails/${auth.user.id}/liked_clubs`)
+          .get(`userdetails/${userId}/liked_clubs`)
           .then((likedClubs) => {
+            setLikedClubs(likedClubs.data);
             setisLiked(likedClubs.data.includes(res.data.id));
           });
-        setIsAdmin(res.data.admin_members.includes(auth.user.id));
+        setIsAdmin(res.data.admin_members.includes(userId));
         fetchTopFans(res.data.top_fans);
         fetchMoreClubs(res.data.creator);
-        if (res.data.members.includes(auth.user.id)) {
+        if (res.data.members.includes(userId)) {
           setisMember(true);
           setJoinState("Leave Club");
           setActiveState("not-active");
@@ -62,8 +71,13 @@ export default function ClubPage() {
       .then((res) => setMoreData(res.data.slice(0, 6)));
   };
 
-  useEffect(() => {
+  const resetStates = () => {
     setTopFans([]);
+    setisMember(false);
+  };
+
+  useEffect(() => {
+    resetStates();
     setView(0);
     fetchClub();
   }, [clubId]);
@@ -72,9 +86,35 @@ export default function ClubPage() {
     setisLiked(!isLiked);
   };
 
-  const handleJoinButtonClick = () => {
+  const remove = (ele, value) => {
+    return ele != value;
+  };
+
+  const handleJoinButtonClick = async () => {
     if (isMember) {
+      let changedFollowingClubs = followingClubs.filter((ele) =>
+        remove(ele, clubId)
+      );
+      await djangoRESTAPI
+        .put(`userdetails/${userId}/`, {
+          following_clubs: changedFollowingClubs,
+        })
+        .catch((err) => console.log(err));
+
+      await djangoRESTAPI.get(`fanclubs/${clubId}`).then(async (res) => {
+        let changedMembers = res.data.members.filter((ele) =>
+          remove(ele, userId)
+        );
+        let changedAdminMembers = res.data.admin_members.filter((ele) =>
+          remove(ele, userId)
+        );
+        await djangoRESTAPI.put(`fanclubs/${clubId}/`, {
+          members: changedMembers,
+          admin_members: changedAdminMembers,
+        });
+      });
       setisMember(false);
+      setIsAdmin(false);
       setActiveState("active");
       setJoinState("Join Club");
     } else {
@@ -193,7 +233,7 @@ export default function ClubPage() {
               </p>
             </div>
             <div className="py-2">
-              {topFans.slice(0, 5).map((fan, index) => {
+              {topFans.slice(0, 5).map((fan) => {
                 return (
                   <div className="my-2" key={fan.user_id}>
                     <div className="d-flex">

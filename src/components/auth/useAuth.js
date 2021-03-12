@@ -17,17 +17,18 @@ function useProvideAuth() {
   const [user, setUser] = useState(null);
 
   const signin = async (userName, userPassword, callback, showError) => {
-    let response = null;
     await djangoRESTAPI
       .get(`/users/${userName}/${userPassword}`)
-      .then((res) => {
-        response = res.data;
+      .then(async (res) => {
+        setUser(res.data);
+        await djangoRESTAPI
+          .get(`userdetails/${res.data.id}/user_profile_image`)
+          .then((imageData) =>
+            setUser((user) => ({ ...user, user_profile_image: imageData.data }))
+          );
+        callback();
       })
-      .catch((err) => console.log(err));
-    if (response) {
-      setUser(response);
-      callback();
-    } else showError();
+      .catch(() => showError());
   };
 
   const signup = async (user, userdetail, callback, showError) => {

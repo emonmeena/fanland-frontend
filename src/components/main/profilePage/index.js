@@ -58,7 +58,7 @@ export default function ProfilePage() {
                   <p className="fw-bolder fs-larger">{user.user_name}</p>
                 </div>
                 <div>
-                  <p className="fs-secondary">{user.status}</p>
+                  <p className="fs-secondary">{user.user_status}</p>
                 </div>
                 {/* update here */}
               </div>
@@ -75,7 +75,7 @@ export default function ProfilePage() {
             <div className="d-flex flex-nowrap col-6">
               {userClubs.map((dataItem, index) => {
                 return (
-                  <div key={index} className={`px-${index === 0 ? 0 : 3} py-3`}>
+                  <div key={dataItem.id} className={`px-${index === 0 ? 0 : 3} py-3`}>
                     <Club
                       clubName={dataItem.name}
                       clubDes={dataItem.des}
