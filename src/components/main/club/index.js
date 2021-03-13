@@ -9,7 +9,7 @@ export default function Club({ imageurl, clubName, clubDes, clubId }) {
         <div
           className="club-image-div"
           style={{
-            backgroundImage: `url(${imageurl})`,
+            backgroundImage: `url(http://localhost:8000${imageurl})`,
           }}
         ></div>
         <div className="club-hover-options d-flex justify-content-center px-4">

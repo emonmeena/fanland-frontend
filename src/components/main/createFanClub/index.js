@@ -1,81 +1,67 @@
 import React, { useState } from "react";
-import { Modal } from "react-bootstrap";
+import { Form, Modal } from "react-bootstrap";
 import { useHistory, useLocation } from "react-router-dom";
+import djangoRESTAPI from "../../api/djangoRESTAPI";
 import { useAuth } from "../../auth/useAuth";
-import { AddClubData } from "../../api/fakeDataAPI";
 
 export default function CreateFanClub(props) {
   const [clubTitle, setTitle] = useState("");
   const [clubDes, setDes] = useState("");
-  const [imageFile, setImageFile] = useState("");
-  const [clubImage, setImage] = useState(
-    "https://img.washingtonpost.com/rf/image_1484w/WashingtonPost/Content/Blogs/celebritology/Images/Film_Review_Dark_Knight_Rises-085d2-4549.jpg?uuid=ryK-otD1EeGt8tVushDNzQ"
-  );
-  const [clubID, setClubID] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+  const [clubImage, setImage] = useState(null);
+
   let auth = useAuth();
-  let userName = auth.user.userName;
+  let userId = auth.user.id;
 
   let history = useHistory();
   let location = useLocation();
 
-  let { from } = location.state || {
-    from: { pathname: `/app/clubs/${clubID}` },
-  };
-
-  const createClubId = (str) => {
-    str = str.trim();
-    str = str.toLowerCase();
-    str = str.replace(/ /g, "_");
-    setClubID(str);
-  };
-
   const resetStates = () => {
     setTitle("");
     setDes("");
-    setImage("");
-    setImage(
-      "https://img.washingtonpost.com/rf/image_1484w/WashingtonPost/Content/Blogs/celebritology/Images/Film_Review_Dark_Knight_Rises-085d2-4549.jpg?uuid=ryK-otD1EeGt8tVushDNzQ"
-    );
+    setImage(null);
+    setImageFile(null);
   };
 
-  const createClub = (e) => {
+  const createClub = async (e) => {
     e.preventDefault();
-    let sampleClub = {};
-    sampleClub.name = clubTitle;
-    sampleClub.des = clubDes;
-    sampleClub.image = clubImage;
-    sampleClub.id = clubID;
-    sampleClub.topFans = [
-      {
-        userName: "Maayami",
-        profileImageUrl:
-          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-      },
-    ];
-    sampleClub.admin = userName;
-    sampleClub.members = [
-      {
-        userName: "Maayami",
-        profileImageUrl:
-          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-      },
-    ];
-    sampleClub.chats = [
-      {
-        authorImage: "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
-        author: "Mayank",
-        profileImageUrl:
-          "https://pfpmaker.com/_nuxt/img/profile-3-1.3e702c5.png",
 
-        message: `${auth.user.userName}, joined the room`,
-        date: "",
-      },
-    ];
+    let form_data = new FormData();
 
-    AddClubData(sampleClub);
-    resetStates();
-    props.onHide();
-    history.replace(from);
+    form_data.append("name", clubTitle);
+    form_data.append("des", clubDes);
+    if (imageFile) form_data.append("image", imageFile);
+    form_data.append("creator", userId);
+    form_data.append("top_fans", [userId]);
+    form_data.append("members", [userId]);
+    form_data.append("admin_members", [userId]);
+
+    await djangoRESTAPI
+      .post(`fanclubs/`, form_data, {
+        headers: {
+          "content-type": "multipart/form-data",
+        },
+      })
+      .then(async (res) => {
+        console.log(res.data);
+        await djangoRESTAPI
+          .get(`userdetails/${userId}/`)
+          .then(async (userdetail) => {
+            await djangoRESTAPI
+              .put(`userdetails/${userId}/`, {
+                admin_clubs: [...userdetail.data.admin_clubs, res.data],
+                following_clubs: [...userdetail.data.following_clubs, res.data],
+              })
+              .catch((err) => console.log(err));
+          });
+        resetStates();
+        props.onHide();
+        let { from } = location.state || {
+          from: { pathname: `/app/clubs/${res.data}` },
+        };
+        history.replace(from);
+      })
+      .catch((err) => console.log(err));
   };
 
   const photoUpload = (e) => {
@@ -112,11 +98,21 @@ export default function CreateFanClub(props) {
           <div className="col-4">
             <label htmlFor="photo-upload" className="w-100">
               <div
-                className="club-image-container"
+                className="club-image-container bg-color-tertiary d-flex justify-content-center align-items-center"
                 style={{
                   backgroundImage: `url(${clubImage})`,
                 }}
-              ></div>
+              >
+                {clubImage ? (
+                  ""
+                ) : (
+                  <p className="fs-secondary text-center">
+                    <i class="fas fa-camera fs-primary"></i>
+                    <br />
+                    Click here to add an Image
+                  </p>
+                )}
+              </div>
             </label>
             <input id="photo-upload" type="file" onChange={photoUpload} />
           </div>
@@ -135,7 +131,6 @@ export default function CreateFanClub(props) {
                   value={clubTitle}
                   onChange={(e) => {
                     setTitle(e.target.value);
-                    createClubId(e.target.value);
                   }}
                 />
               </div>
@@ -155,12 +150,11 @@ export default function CreateFanClub(props) {
                 ></textarea>
               </div>
               <div className="mx-md-5 px-md-3 pt-2">
-                <button
+                <input
                   type="submit"
                   className="bg-color-green border-0 p-2 px-3 rounded mt-3 text-white"
-                >
-                  CREATE
-                </button>
+                  value="CREATE"
+                />
               </div>
             </form>
           </div>

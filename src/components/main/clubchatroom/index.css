@@ -45,3 +45,15 @@
 .dot-not-active{
   background-color: rgb(165, 5, 5);
 }
+
+.member-box:hover .member-options {
+  visibility: visible;
+}
+
+.member-options {
+  visibility: hidden;
+}
+
+.highlight-message{
+  border-left: solid yellow 2px;
+}

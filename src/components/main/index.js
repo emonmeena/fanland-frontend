@@ -21,7 +21,7 @@ const routes = [
     path: "",
     exact: true,
     main: () => (
-      <DefaultPreview title="Home" endpoint="followingClubs" tags={null} />
+      <DefaultPreview title="Home" endpoint="following_clubs" tags={null} />
     ),
   },
   {
@@ -29,7 +29,7 @@ const routes = [
     main: () => (
       <DefaultPreview
         title="Explore"
-        endpoint="interest"
+        endpoint="following_clubs"
         tags={[
           { tagTitle: "All", tagId: "" },
           { tagTitle: "Suggested", tagId: "suggested" },
@@ -40,7 +40,7 @@ const routes = [
   {
     path: "/recent",
     main: () => (
-      <DefaultPreview title="Recent" endpoint="recentClubs" tags={null} />
+      <DefaultPreview title="Recent" endpoint="following_clubs" tags={null} />
     ),
   },
   {
@@ -48,7 +48,7 @@ const routes = [
     main: (name) => (
       <DefaultPreview
         title={`Made by ${name}`}
-        endpoint="adminClubs"
+        endpoint="admin_clubs"
         tags={null}
       />
     ),
@@ -56,7 +56,7 @@ const routes = [
   {
     path: "/liked",
     main: () => (
-      <DefaultPreview title="Liked Clubs" endpoint="likedClubs" tags={null} />
+      <DefaultPreview title="Liked Clubs" endpoint="liked_clubs" tags={null} />
     ),
   },
   {
@@ -65,7 +65,7 @@ const routes = [
   },
 
   {
-    path: "/users/:userName",
+    path: "/users/:userId",
     main: () => <ProfilePage />,
   },
   {
@@ -79,6 +79,18 @@ export default function Main() {
   let { path, url } = useRouteMatch();
   const [modalShow, setModalShow] = useState(false);
   const history = useHistory();
+<<<<<<< HEAD
+
+  const editProfile = () => {
+    console.log("editProfile()");
+  };
+
+  const logout = () => {
+    auth.signout();
+  };
+
+=======
+>>>>>>> e96150f57f0d5d4c9bd66ed2dddda7950fba57f6
   return (
     <Router>
       <CreateFanClub show={modalShow} onHide={() => setModalShow(false)} />
@@ -198,17 +210,14 @@ export default function Main() {
                 </div>
                 <div className="d-flex px-3">
                   <img
-                    src={auth.user.profileImageUrl}
+                    src={auth.user.user_profile_image}
                     alt="Profile"
                     height="30"
                     style={{ borderRadius: "50%" }}
                     className="mx-2"
                   />
-                  <Link
-                    to={`/app/users/${auth.user.userName}`}
-                    className="link-2"
-                  >
-                    <p className="pt-1 px-1">{auth.user.userName}</p>
+                  <Link to={`/app/users/${auth.user.id}`} className="link-2">
+                    <p className="pt-1 px-1">{auth.user.user_name}</p>
                   </Link>
                   <button className="pt-1 px-2 bg-color-primary border-0">
                     <i className="fas fa-chevron-down icon-style-2"></i>
@@ -222,7 +231,7 @@ export default function Main() {
                     key={index}
                     path={path + route.path}
                     exact={route.exact}
-                    children={route.main(auth.user.userName)}
+                    children={route.main(auth.user.user_name)}
                   />
                 ))}
               </Switch>

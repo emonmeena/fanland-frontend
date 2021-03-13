@@ -1,5 +1,5 @@
 import React, { useState, useContext, createContext } from "react";
-import { fetchUser } from "../api/fakeUserAPI";
+import djangoRESTAPI from "../api/djangoRESTAPI";
 
 const authContext = createContext();
 
@@ -16,16 +16,35 @@ export const useAuth = () => {
 function useProvideAuth() {
   const [user, setUser] = useState(null);
 
-  const signin = (userName, callback) => {
-    let userData = fetchUser(userName);
-    if (userData) {
-      setUser(userData);
-      callback();
-    } else console.log("User not found.");
+  const signin = async (userName, userPassword, callback, showError) => {
+    await djangoRESTAPI
+      .get(`/users/${userName}/${userPassword}`)
+      .then(async (res) => {
+        setUser(res.data);
+        await djangoRESTAPI
+          .get(`userdetails/${res.data.id}/user_profile_image`)
+          .then((imageData) =>
+            setUser((user) => ({ ...user, user_profile_image: imageData.data }))
+          );
+        callback();
+      })
+      .catch(() => showError());
   };
 
-  const signup = (userName, callback) => {
-    callback();
+  const signup = async (user, userdetail, callback, showError) => {
+    await djangoRESTAPI
+      .post("/users/", user)
+      .then((res) => {
+        djangoRESTAPI
+          .post("/userdetails/", { ...userdetail, user_id: res.data })
+          .then(() => {
+            callback();
+          })
+          .catch((err) => console.log(err));
+      })
+      .catch(() => {
+        showError();
+      });
   };
 
   const signout = () => {

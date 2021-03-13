@@ -1,77 +1,151 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { fetchData } from "../../api/fakeDataAPI";
-import { fetchUserClubs } from "../../api/fakeUserAPI";
 import Club from "../club";
 import PageNotFound from "../pageNotFound";
 import { useAuth } from "../../auth/useAuth";
+import { Dropdown } from "react-bootstrap";
+import djangoRESTAPI from "../../api/djangoRESTAPI";
 
 export default function ClubPage() {
   const [fanclub, setFanclub] = useState(null);
+  const [followingClubs, setFollowingClubs] = useState(null);
+  const [likedClubs, setLikedClubs] = useState(null);
   const [moreClubsdata, setMoreData] = useState([]);
+  const [topFans, setTopFans] = useState([]);
   const [viewpoint, setView] = useState(0);
   const [joinState, setJoinState] = useState("Join Club");
   const [activeState, setActiveState] = useState("active");
   const [isLiked, setisLiked] = useState(false);
   const [isMember, setisMember] = useState(false);
+  const [isCreator, setIsCreator] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [creator, setCreator] = useState(null);
   const { clubId } = useParams();
 
   let auth = useAuth();
+  let userId = auth.user.id;
+  let userName = auth.user.user_name;
 
-  const fetchClub = () => {
-    let sampleClub = fetchData(clubId);
-    if (!sampleClub) {
-      setView(2);
-    } else {
-      fetchMoreClubs(sampleClub.admin);
-      setFanclub(sampleClub);
-      let memberBool = sampleClub.members.some(
-        (member) => member.userName === auth.user.userName
-      );
-      setisMember(memberBool);
-      if (memberBool) {
-        setJoinState("Leave Club");
-        setActiveState("not-active");
-      }
-      setView(1);
-    }
+  const fetchClub = async () => {
+    await djangoRESTAPI
+      .get(`fanclubs/${clubId}`)
+      .then(async (res) => {
+        setFanclub(res.data);
+        setIsCreator(() => userId === res.data.creator);
+        await djangoRESTAPI
+          .get(`userdetails/${userId}/following_clubs`)
+          .then((followingData) => setFollowingClubs(followingData.data));
+
+        await djangoRESTAPI
+          .get(`userdetails/${res.data.creator}/user_name`)
+          .then((response) => setCreator(response.data));
+        await djangoRESTAPI
+          .get(`userdetails/${userId}/liked_clubs`)
+          .then((likedClubs) => {
+            setLikedClubs(likedClubs.data);
+            setisLiked(likedClubs.data.includes(res.data.id));
+          });
+        setIsAdmin(res.data.admin_members.includes(userId));
+        fetchTopFans(res.data.top_fans);
+        fetchMoreClubs(res.data.creator);
+        if (res.data.members.includes(userId)) {
+          setisMember(true);
+          setJoinState("Leave Club");
+          setActiveState("not-active");
+        }
+        setView(1);
+      })
+      .catch((err) => {
+        console.log(err);
+        setView(2);
+      });
+  };
+  const fetchTopFans = (topFanIds) => {
+    topFanIds.map(async (fanId) => {
+      await djangoRESTAPI.get(`userdetails_basic/${fanId}`).then((res) => {
+        setTopFans((data) => [...data, res.data]);
+      });
+    });
+  };
+  const fetchMoreClubs = async (creator) => {
+    await djangoRESTAPI
+      .get(`fanclubs_basic/created_by/${creator}`)
+      .then((res) => setMoreData(res.data.slice(0, 6)));
   };
 
-  const fetchMoreClubs = (admin) => {
-    let sampleMoreData = [];
-    let sampleMoreClubNames = fetchUserClubs(admin, "adminClubs");
-    let sampleLikedClubs = fetchUserClubs(auth.user.userName, "likedClubs");
-    let likedBool = sampleLikedClubs.includes(clubId);
-
-    sampleMoreClubNames = sampleMoreClubNames.slice(0, 6);
-
-    sampleMoreClubNames.map((clubId) => {
-      let sampleClub = fetchData(clubId);
-      sampleMoreData.push(sampleClub);
-    });
-    setisLiked(likedBool);
-    setMoreData(sampleMoreData);
+  const resetStates = () => {
+    setTopFans([]);
+    setisMember(false);
+    setisLiked(false);
+    setLikedClubs([]);
   };
 
   useEffect(() => {
+    resetStates();
+    setView(0);
     fetchClub();
   }, [clubId]);
 
-  const handleLikeClub = () => {
+  const remove = (ele, value) => {
+    return ele != value;
+  };
+  const handleLikeClub = async () => {
+    if (isLiked) {
+      let changedLikedClubs = likedClubs.filter((ele) => remove(ele, clubId));
+      console.log(likedClubs);
+      await djangoRESTAPI.put(`userdetails/${userId}/`, {
+        liked_clubs: changedLikedClubs,
+      });
+    } else {
+      await djangoRESTAPI.put(`userdetails/${userId}/`, {
+        liked_clubs: [...likedClubs, clubId],
+      });
+    }
     setisLiked(!isLiked);
   };
 
-  const handleJoinButtonClick = () => {
+  const handleJoinButtonClick = async () => {
     if (isMember) {
-      setisMember(false);
+      let changedFollowingClubs = followingClubs.filter((ele) =>
+        remove(ele, clubId)
+      );
+      await djangoRESTAPI
+        .put(`userdetails/${userId}/`, {
+          following_clubs: changedFollowingClubs,
+        })
+        .catch((err) => console.log(err));
+
+      await djangoRESTAPI.get(`fanclubs/${clubId}`).then(async (res) => {
+        let changedMembers = res.data.members.filter((ele) =>
+          remove(ele, userId)
+        );
+        let changedAdminMembers = res.data.admin_members.filter((ele) =>
+          remove(ele, userId)
+        );
+        await djangoRESTAPI.put(`fanclubs/${clubId}/`, {
+          members: changedMembers,
+          admin_members: changedAdminMembers,
+        });
+      });
+      setIsAdmin(false);
       setActiveState("active");
       setJoinState("Join Club");
     } else {
-      setActiveState("not-active");
+      await djangoRESTAPI
+        .put(`userdetails/${userId}/`, {
+          following_clubs: [...followingClubs, clubId],
+        })
+        .catch((err) => console.log(err));
 
-      setJoinState("Leave CLub");
-      setisMember(true);
+      await djangoRESTAPI.get(`fanclubs/${clubId}`).then(async (res) => {
+        await djangoRESTAPI.put(`fanclubs/${clubId}/`, {
+          members: [...res.data.members, userId],
+        });
+        setActiveState("not-active");
+        setJoinState("Leave CLub");
+      });
     }
+    setisMember(!isMember);
   };
 
   const viewNotFound = () => {
@@ -87,7 +161,7 @@ export default function ClubPage() {
               <div
                 className="club-image-container"
                 style={{
-                  backgroundImage: `url(${fanclub.image})`,
+                  backgroundImage: `url(http://localhost:8000${fanclub.image})`,
                 }}
               ></div>
             </div>
@@ -101,39 +175,84 @@ export default function ClubPage() {
                     {fanclub.des} <br />
                     created by{" "}
                     <Link
-                      to={`/app/users/${fanclub.admin}`}
+                      to={`/app/users/${fanclub.creator}`}
                       className="link-2 text-white"
                     >
-                      {fanclub.admin}
+                      {creator}
                     </Link>
                     {","}
                     <i className="fas fa-users mx-1"></i>
                     {fanclub.members.length}
                   </p>
                 </div>
-                <div className="pt-3">
-                  <button
-                    onClick={handleJoinButtonClick}
-                    className={`btn rounded p-2 ${activeState}`}
-                  >
-                    {joinState}
-                  </button>
-                  <button
-                    className="border-0 bg-color-primary fs-primary text-white mx-3 scale"
-                    onClick={handleLikeClub}
-                  >
-                    {isLiked ? (
-                      <i className="fas fa-heart"></i>
-                    ) : (
-                      <i className="far fa-heart"></i>
-                    )}
-                  </button>
-                  <Link to={`/app/chats/${clubId}`}>
-                    <button className="border-0 bg-color-primary fs-primary text-white scale">
-                      <i className="fas fa-comments"></i>
-                      <span className="mx-2">Conversations</span>
+                <div className="pt-3 d-flex">
+                  {isCreator ? (
+                    ""
+                  ) : (
+                    <button
+                      onClick={handleJoinButtonClick}
+                      className={`btn rounded-pill p-2 px-3 ${activeState}`}
+                    >
+                      {joinState}
                     </button>
-                  </Link>
+                  )}
+                  <div className="d-flex mx-3">
+                    <button
+                      className="border-0 bg-color-primary fs-primary text-white scale"
+                      onClick={handleLikeClub}
+                    >
+                      {isLiked ? (
+                        <i className="fas fa-heart"></i>
+                      ) : (
+                        <i className="far fa-heart"></i>
+                      )}
+                    </button>
+                    <Link to={`/app/chats/${clubId}`}>
+                      <button className="border-0 bg-color-primary fs-primary pt-2 mx-2 text-white scale">
+                        <i className="fas fa-comments"></i>
+                      </button>
+                    </Link>
+                    {isAdmin ? (
+                      <div className="pt-2">
+                        <Dropdown>
+                          <Dropdown.Toggle
+                            bsPrefix="bg-color-primary text-white rounded-circle px-1 border"
+                            as="button"
+                            id="dropdown-basic"
+                          >
+                            <i className="fas fa-ellipsis-h"></i>
+                          </Dropdown.Toggle>
+
+                          <Dropdown.Menu bsPrefix="bg-color-tertiary mt-2">
+                            <Dropdown.Item
+                              href="#/action-1"
+                              className="fs-secondary"
+                            >
+                              Edit
+                            </Dropdown.Item>
+                            <Dropdown.Item
+                              href="#/action-2"
+                              className="fs-secondary"
+                            >
+                              Settings
+                            </Dropdown.Item>
+                            {fanclub.creator === userId ? (
+                              <Dropdown.Item
+                                href="#/action-3"
+                                className="fs-secondary"
+                              >
+                                Delete Fanclub
+                              </Dropdown.Item>
+                            ) : (
+                              ""
+                            )}
+                          </Dropdown.Menu>
+                        </Dropdown>
+                      </div>
+                    ) : (
+                      <div></div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -145,22 +264,20 @@ export default function ClubPage() {
               </p>
             </div>
             <div className="py-2">
-              {fanclub.topFans.slice(0, 5).map((fan, index) => {
+              {topFans.slice(0, 5).map((fan) => {
                 return (
-                  <div className="my-2" key={index}>
+                  <div className="my-2" key={fan.user_id}>
                     <div className="d-flex">
                       <img
-                        src={fan.profileImageUrl}
+                        src={`${fan.user_profile_image}`}
                         alt="Profile"
                         height="30"
-                        // style={{ borderRadius: "50%" }}
-                        // className=""
                       />
                       <Link
-                        to={`/app/users/${fan.userName}`}
+                        to={`/app/users/${fan.user_id}`}
                         className="link-2 mx-2"
                       >
-                        <p className="pt-1 px-1">{fan.userName}</p>
+                        <p className="pt-1 px-1">{fan.user_name}</p>
                       </Link>
                     </div>
                   </div>
@@ -171,11 +288,10 @@ export default function ClubPage() {
           <div className="pt-4">
             <div className="d-flex justify-content-between custom-border-bottom py-2">
               <p className="fs-secondary">
-                Fanclubs by{" "}
-                <span className="text-white"> {fanclub.admin} </span>
+                Fanclubs by <span className="text-white"> {creator} </span>
               </p>
               <Link
-                to={`/app/users/${fanclub.admin}`}
+                to={`/app/users/${fanclub.creator}`}
                 className="link-2 text-white"
               >
                 See All
@@ -184,7 +300,10 @@ export default function ClubPage() {
             <div className="d-flex flex-nowrap col-6">
               {moreClubsdata.map((dataItem, index) => {
                 return (
-                  <div key={index} className={`px-${index === 0 ? 0 : 3} py-3`}>
+                  <div
+                    key={dataItem.id}
+                    className={`px-${index === 0 ? 0 : 3} py-3`}
+                  >
                     <Club
                       clubName={dataItem.name}
                       clubDes={dataItem.des}

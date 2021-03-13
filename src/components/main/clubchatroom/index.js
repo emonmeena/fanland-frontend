@@ -4,82 +4,144 @@ import { Link, useParams } from "react-router-dom";
 import { Spinner } from "react-bootstrap";
 import "./index.css";
 import { useAuth } from "../../auth/useAuth";
-import { fetchData } from "../../api/fakeDataAPI";
+import djangoRESTAPI from "../../api/djangoRESTAPI";
 
 const socket = io.connect("http://localhost:4000");
 
 export default function ClubChatRoom() {
+  const [viewpoint, setView] = useState(0);
+  const [fanclub, setFanclub] = useState(null);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [clubMmebers, setClubMembers] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
-  const [message, setMessage] = useState("");
-  const [chats, setChats] = useState(null);
-  const [members, setMembers] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState(null);
+  const [isImageMessage, setIsImageMessage] = useState(false);
   const [isMember, setisMember] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isSocketOn, setSocket] = useState(false);
+  const [image, setImage] = useState(null);
+  const [file, setImageFile] = useState(null);
   const { chatRoomId } = useParams();
 
   let auth = useAuth();
-  let userName = auth.user.userName;
-  let userProfilePic = auth.user.profileImageUrl;
+  let userId = auth.user.id;
+  let userName = auth.user.user_name;
+  let userProfilePic = auth.user.user_profile_image;
+
+  useEffect(() => {
+    if (viewpoint === 0 && !fanclub) {
+      getFanclub();
+    } else if (viewpoint === 1) {
+      if (!isSocketOn) handleSocketConnection();
+      scroll();
+    }
+  }, [chatRoomId, viewpoint, fanclub]);
 
   const textChange = (e) => {
     setMessage(e.target.value);
   };
 
-  const onFormSubmit = (e) => {
+  const onFormSubmit = async (e) => {
     e.preventDefault();
-    if (message !== "") {
-      socket.emit("chat-message", {
-        authorImage: userProfilePic,
-        author: userName,
-        message: message,
-      });
-      setChats([
-        ...chats,
-        { authorImage: userProfilePic, author: userName, message: message },
-      ]);
+    if (message || file) {
+      let form_data = new FormData();
+      form_data.append("chatroom_id", chatRoomId);
+      form_data.append("author_image", userProfilePic);
+      form_data.append("author_name", userName);
+      form_data.append("author_id", userId);
+      form_data.append("is_image_message", isImageMessage);
+      if (isImageMessage) form_data.append("media", file, file.name);
+      form_data.append("message", message);
+
+      await djangoRESTAPI
+        .post(`chats/${chatRoomId}/`, form_data, {
+          headers: {
+            "content-type": "multipart/form-data",
+          },
+        })
+        .then((res) => {
+          let sampleChat = {
+            author_id: userId,
+            chatRoomId: chatRoomId,
+            author_name: userName,
+            author_image: userProfilePic,
+            message: message,
+            media: res.data,
+            is_image_message: isImageMessage,
+          };
+          socket.emit("chat-message", sampleChat);
+          setChatMessages((data) => [...data, sampleChat]);
+        })
+        .catch((err) => console.log(err));
+
       setMessage("");
+      setIsImageMessage(false);
+      setImageFile(null);
+      setImage(null);
+      scroll();
     }
   };
 
-  const getFanclub = () => {
-    let sampleClub = fetchData(chatRoomId);
-    let sampleMembers = sampleClub.members;
-    setisMember(
-      sampleMembers.some((member) => member.userName === auth.user.userName)
-    );
-    setMembers(sampleMembers);
-    setChats(sampleClub.chats);
-  };
-
-  useEffect(() => {
-    const messageContainer = document.getElementById("message-container");
-    if (loading) {
-      socket.emit("user-active", {
-        userName: userName,
-        chatRoomId: chatRoomId,
+  const getFanclub = async () => {
+    await djangoRESTAPI
+      .get(`fanclubs/${chatRoomId}`)
+      .then(async (res) => {
+        await djangoRESTAPI
+          .get(`chats/${chatRoomId}`)
+          .then((res) => setChatMessages(res.data));
+        res.data.members.map(async (userId) => {
+          await djangoRESTAPI
+            .get(`userdetails_basic/${userId}`)
+            .then((userdetailBasic) => {
+              setClubMembers((members) => [...members, userdetailBasic.data]);
+            })
+            .catch((err) => console.log(err));
+        });
+        setFanclub(res.data);
+        setIsAdmin(res.data.admin_members.includes(userId));
+        setisMember(res.data.members.includes(userId));
+        setView(1);
+      })
+      .catch((err) => {
+        console.log(err);
+        setView(2);
       });
-      getFanclub();
-      if (chats && members) setLoading(false);
-    }
+  };
 
+  const handleSocketConnection = () => {
+    socket.emit("user-active", {
+      userName: userName,
+      chatRoomId: chatRoomId,
+    });
     socket.on("user-online", (activeUser) => {
       setOnlineUsers([...onlineUsers, activeUser.userName]);
       // to be updated
     });
 
     socket.on("receive-message", (chat) => {
-      setChats([
-        ...chats,
-        {
-          authorImage: chat.authorImage,
-          author: chat.author,
-          message: chat.message,
-        },
-      ]);
+      // queryselector
+      setChatMessages((data) => [...data, chat]);
+      scroll();
     });
-    if (messageContainer)
-      messageContainer.scrollTo(0, messageContainer.scrollHeight);
-  }, [chatRoomId, chats, loading, userName, onlineUsers, members]);
+    setSocket(true);
+  };
+
+  const photoUpload = (e) => {
+    e.preventDefault();
+    const reader = new FileReader();
+    const file = e.target.files[0];
+    reader.onloadend = () => {
+      setImageFile(file);
+      setImage(reader.result);
+    };
+    reader.readAsDataURL(file);
+    setIsImageMessage(true);
+  };
+
+  const scroll = () => {
+    let messageContainer = document.getElementById("message-container");
+    messageContainer.scrollTo(0, messageContainer.scrollHeight);
+  };
 
   const joinUser = () => {
     setisMember(true);
@@ -94,6 +156,12 @@ export default function ClubChatRoom() {
             <button className="bg-color-secondary border-0">
               <i className="fas fa-photo-video text-white"></i>
             </button>
+            <input
+              id="photo-upload"
+              type="file"
+              accept="image/*"
+              onChange={photoUpload}
+            />
             <input
               type="text"
               id="messageInput"
@@ -122,85 +190,182 @@ export default function ClubChatRoom() {
     }
   };
 
-  return !loading ? (
-    <div className="">
-      <div className="row">
-        <div className="col-10">
-          <div className="bg-color-tertiary p-2 mx-2 mt-3"> nnkn</div>
-          <div
-            className="overflow-auto px-1 chat-box bg-color-primary mx-2"
-            id="message-container"
-          >
-            {chats.map((chat, index) => {
-              // let type = chat.author === userName ? "send" : "receive";
-              return (
-                <div key={index} className={`message-box py-2 px-1 d-flex`}>
-                  <img
-                    src={chat.authorImage}
-                    alt="Profile"
-                    height="46"
-                    style={{ borderRadius: "50%" }}
-                    className="mx-1"
-                  />
-                  <p className="fs-smaller px-3">
-                    <Link
-                      to={`/app/users/${chat.author}`}
-                      className="link link-hover-underline"
-                    >
-                      <span className="fw-bolder text-white fs-medium">
-                        {chat.author}
-                      </span>
-                    </Link>
-                    <span className="fs-smallest px-2"> Today, 6 PM</span>
-                    <br />
-                    {chat.message}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-          <div className="m-2">{functionsix()}</div>
+  const ComponentChat = ({ chat }) => {
+    return (
+      <div className={`message-box py-2 px-1 d-flex justify-content-between`}>
+        <div className="d-flex">
+          <img
+            src={chat.author_image}
+            alt="Profile"
+            height="46"
+            style={{ borderRadius: "50%" }}
+            className="mx-1"
+          />
+          <p className="fs-smaller px-3">
+            <Link
+              to={`/app/users/${chat.author_id}`}
+              className="link link-hover-underline"
+            >
+              <span className="fw-bolder text-white fs-medium">
+                {chat.author_name}
+              </span>
+            </Link>
+            <span className="fs-smallest px-2">
+              {" "}
+              {chat.date}, {chat.time}{" "}
+            </span>
+            <br />
+            {chat.is_image_message ? (
+              <div>
+                <img
+                  className="my-2"
+                  style={{ maxHeight: "300px" }}
+                  src={`http://localhost:8000${chat.media}`}
+                />
+              </div>
+            ) : (
+              ""
+            )}
+            {chat.message ? chat.message : ""}
+          </p>
         </div>
-        <div className=" col-2 bg-color-secondary border-right custom-border-right mt-3  pt-2 px-4">
-          <div className="custom-border-bottom">
-            <p className="fs-small py-1">Members</p>
+        {chat.author_id === userId || isAdmin ? (
+          <div className="pt-2 chat-option px-4">
+            <Dropdown>
+              <Dropdown.Toggle
+                bsPrefix="chat-option text-white px-1 border-0"
+                as="button"
+                id="dropdown-basic"
+              >
+                <i className="fas fa-ellipsis-h"></i>
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu align="left" bsPrefix="bg-color-secondary">
+                <Dropdown.Item href="#/action-1" className="fs-secondary">
+                  Delete Post
+                </Dropdown.Item>
+                {isAdmin ? (
+                  <Dropdown.Item href="#/action-2" className="fs-secondary">
+                    Ban {chat.author}
+                  </Dropdown.Item>
+                ) : (
+                  <div></div>
+                )}
+              </Dropdown.Menu>
+            </Dropdown>
           </div>
-          <div className="pt-3 participants-container overflow-auto">
-            {members.map((item, index) => {
-              return (
-                <div className="d-flex py-2" key={index}>
-                  <div>
-                    <img
-                      src={item.profileImageUrl}
-                      alt="Profile"
-                      height="30"
-                      style={{ borderRadius: "50%" }}
-                    />
-                    <span className="dot dot-active"></span>
-                  </div>
-                  <div>
-                    <p className="fs-smaller px-2 pt-1">
-                      <Link
-                        to={`/app/users/${item.userName}`}
-                        className="link link-hover-underline text-white"
-                      >
-                        {item.userName}
-                      </Link>
-                      <span className="fs-smallest px-2"> 1 hour</span>
-                    </p>
-                  </div>
+        ) : (
+          <div></div>
+        )}
+      </div>
+    );
+  };
+
+  const viewMain = () => {
+    return (
+      <div>
+        <div className="row">
+          <div className="col-10">
+            <div className="bg-color-tertiary p-2 mx-2 mt-3">
+              {fanclub.name}
+            </div>
+            <div
+              className="custom-overflow py-2 chat-box bg-color-primary mx-2"
+              id="message-container"
+            >
+              {chatMessages.map((chat) => {
+                return <ComponentChat key={chat.id} chat={chat} />;
+              })}
+            </div>
+            {isImageMessage ? (
+              <div
+                className="mx-2 position-absolute p-2 bg-color-tertiary"
+                style={{ bottom: 60 }}
+              >
+                <div className="d-flex justify-content-between">
+                  <p className="fw-bold">Image Preview</p>
+                  <button
+                    className="bg-color-tertiary text-white"
+                    onClick={() => {
+                      setIsImageMessage(false);
+                      setImageFile(null);
+                    }}
+                  >
+                    <i className="fa fa-times"></i>
+                  </button>
                 </div>
-              );
-            })}
+                <img
+                  className="my-2"
+                  style={{ maxHeight: "300px" }}
+                  src={image}
+                />
+                <p className="fs-small fs-secondary">
+                  Press enter to upload the selected image to the fanland
+                  server.
+                </p>
+              </div>
+            ) : (
+              <p></p>
+            )}
+            <div className="m-2">{functionsix()}</div>
+          </div>
+          <div className=" col-2 bg-color-secondary border-right custom-border-right mt-3  pt-2 px-4">
+            <div className="custom-border-bottom">
+              <p className="fs-small py-1">Members</p>
+            </div>
+            <div className="pt-3 participants-container overflow-auto">
+              {clubMmebers.map((item) => {
+                return (
+                  <div className="d-flex py-2 member-box" key={item.user_id}>
+                    <div>
+                      <img
+                        src={item.user_profile_image}
+                        alt="Profile"
+                        height="30"
+                        style={{ borderRadius: "50%" }}
+                      />
+                      <span className="dot dot-active"></span>
+                    </div>
+                    <div>
+                      <p className="fs-smaller px-2 pt-1">
+                        <Link
+                          to={`/app/users/${item.user_name}`}
+                          className="link link-hover-underline text-white"
+                        >
+                          {item.user_name}
+                        </Link>
+                        <span className="fs-smallest px-2"> 1 hour</span>
+                      </p>
+                    </div>
+                    {!isAdmin ? (
+                      <div></div>
+                    ) : (
+                      <div className="fs-secondary pt-1 member-options">
+                        <i className="fas fa-user-plus"></i>
+                        <i className="fas fa-ban px-lg-2"></i>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  ) : (
-    <div className="d-flex py-4">
-      <Spinner animation="border" role="status"></Spinner>
+    );
+  };
 
-      <p className="fs-primary fs-medium px-3">Loading...</p>
-    </div>
-  );
+  switch (viewpoint) {
+    case 1:
+      return viewMain();
+    case 2:
+      return <div>Something went wrong, please try after some time.</div>;
+    default:
+      return (
+        <div>
+          <Spinner animation="border" role="status"></Spinner>
+          <p className="fs-primary fs-medium px-3">Loading...</p>
+        </div>
+      );
+  }
 }
