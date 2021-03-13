@@ -17,6 +17,7 @@ export default function ClubPage() {
   const [activeState, setActiveState] = useState("active");
   const [isLiked, setisLiked] = useState(false);
   const [isMember, setisMember] = useState(false);
+  const [isCreator, setIsCreator] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [creator, setCreator] = useState(null);
   const { clubId } = useParams();
@@ -30,6 +31,7 @@ export default function ClubPage() {
       .get(`fanclubs/${clubId}`)
       .then(async (res) => {
         setFanclub(res.data);
+        setIsCreator(() => userId === res.data.creator);
         await djangoRESTAPI
           .get(`userdetails/${userId}/following_clubs`)
           .then((followingData) => setFollowingClubs(followingData.data));
@@ -74,6 +76,8 @@ export default function ClubPage() {
   const resetStates = () => {
     setTopFans([]);
     setisMember(false);
+    setisLiked(false);
+    setLikedClubs([]);
   };
 
   useEffect(() => {
@@ -82,12 +86,22 @@ export default function ClubPage() {
     fetchClub();
   }, [clubId]);
 
-  const handleLikeClub = () => {
-    setisLiked(!isLiked);
-  };
-
   const remove = (ele, value) => {
     return ele != value;
+  };
+  const handleLikeClub = async () => {
+    if (isLiked) {
+      let changedLikedClubs = likedClubs.filter((ele) => remove(ele, clubId));
+      console.log(likedClubs);
+      await djangoRESTAPI.put(`userdetails/${userId}/`, {
+        liked_clubs: changedLikedClubs,
+      });
+    } else {
+      await djangoRESTAPI.put(`userdetails/${userId}/`, {
+        liked_clubs: [...likedClubs, clubId],
+      });
+    }
+    setisLiked(!isLiked);
   };
 
   const handleJoinButtonClick = async () => {
@@ -113,16 +127,25 @@ export default function ClubPage() {
           admin_members: changedAdminMembers,
         });
       });
-      setisMember(false);
       setIsAdmin(false);
       setActiveState("active");
       setJoinState("Join Club");
     } else {
-      setActiveState("not-active");
+      await djangoRESTAPI
+        .put(`userdetails/${userId}/`, {
+          following_clubs: [...followingClubs, clubId],
+        })
+        .catch((err) => console.log(err));
 
-      setJoinState("Leave CLub");
-      setisMember(true);
+      await djangoRESTAPI.get(`fanclubs/${clubId}`).then(async (res) => {
+        await djangoRESTAPI.put(`fanclubs/${clubId}/`, {
+          members: [...res.data.members, userId],
+        });
+        setActiveState("not-active");
+        setJoinState("Leave CLub");
+      });
     }
+    setisMember(!isMember);
   };
 
   const viewNotFound = () => {
@@ -163,12 +186,16 @@ export default function ClubPage() {
                   </p>
                 </div>
                 <div className="pt-3 d-flex">
-                  <button
-                    onClick={handleJoinButtonClick}
-                    className={`btn rounded-pill p-2 px-3 ${activeState}`}
-                  >
-                    {joinState}
-                  </button>
+                  {isCreator ? (
+                    ""
+                  ) : (
+                    <button
+                      onClick={handleJoinButtonClick}
+                      className={`btn rounded-pill p-2 px-3 ${activeState}`}
+                    >
+                      {joinState}
+                    </button>
+                  )}
                   <div className="d-flex mx-3">
                     <button
                       className="border-0 bg-color-primary fs-primary text-white scale"
@@ -209,12 +236,16 @@ export default function ClubPage() {
                             >
                               Settings
                             </Dropdown.Item>
-                            <Dropdown.Item
-                              href="#/action-3"
-                              className="fs-secondary"
-                            >
-                              Delete Fanclub
-                            </Dropdown.Item>
+                            {fanclub.creator === userId ? (
+                              <Dropdown.Item
+                                href="#/action-3"
+                                className="fs-secondary"
+                              >
+                                Delete Fanclub
+                              </Dropdown.Item>
+                            ) : (
+                              ""
+                            )}
                           </Dropdown.Menu>
                         </Dropdown>
                       </div>

@@ -208,16 +208,13 @@ export default function Main() {
                 </div>
                 <div className="d-flex px-3">
                   <img
-                    src={`http://localhost:8000${auth.user.user_profile_image}`}
+                    src={auth.user.user_profile_image}
                     alt="Profile"
                     height="30"
                     style={{ borderRadius: "50%" }}
                     className="mx-2"
                   />
-                  <Link
-                    to={`/app/users/${auth.user.user_name}`}
-                    className="link-2"
-                  >
+                  <Link to={`/app/users/${auth.user.id}`} className="link-2">
                     <p className="pt-1 px-1">{auth.user.user_name}</p>
                   </Link>
                   {/* <button className="pt-1 px-2 bg-color-primary border-0">

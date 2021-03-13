@@ -121,6 +121,7 @@ export default function ClubChatRoom() {
     socket.on("receive-message", (chat) => {
       // queryselector
       setChatMessages((data) => [...data, chat]);
+      scroll();
     });
     setSocket(true);
   };
