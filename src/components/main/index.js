@@ -29,10 +29,10 @@ const routes = [
     main: () => (
       <DefaultPreview
         title="Explore"
-        endpoint="following_clubs"
+        endpoint=""
         tags={[
           { tagTitle: "All", tagId: "" },
-          { tagTitle: "Suggested", tagId: "suggested" },
+          // { tagTitle: "Suggested", tagId: "suggested" },
         ]}
       />
     ),
@@ -40,7 +40,7 @@ const routes = [
   {
     path: "/recent",
     main: () => (
-      <DefaultPreview title="Recent" endpoint="following_clubs" tags={null} />
+      <DefaultPreview title="Recent" endpoint="recent_clubs" tags={null} />
     ),
   },
   {
@@ -79,8 +79,6 @@ export default function Main() {
   let { path, url } = useRouteMatch();
   const [modalShow, setModalShow] = useState(false);
   const history = useHistory();
-<<<<<<< HEAD
-
   const editProfile = () => {
     console.log("editProfile()");
   };
@@ -89,8 +87,6 @@ export default function Main() {
     auth.signout();
   };
 
-=======
->>>>>>> e96150f57f0d5d4c9bd66ed2dddda7950fba57f6
   return (
     <Router>
       <CreateFanClub show={modalShow} onHide={() => setModalShow(false)} />

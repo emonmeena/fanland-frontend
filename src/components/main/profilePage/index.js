@@ -44,7 +44,7 @@ export default function ProfilePage() {
     return (
       <div className="px-3 pt-3">
         <div className="top-clubpage">
-          <div className="overflow-auto">
+          <div className="overflow-">
             <div className="row">
               <div className="col-2">
                 <div
@@ -54,7 +54,7 @@ export default function ProfilePage() {
                   }}
                 ></div>
               </div>
-              <div className="col-9 d-flex">
+              <div className="col-8 d-flex">
                 <div className="align-self-end">
                   <div>
                     <p className="fw-bolder fs-larger">{user.user_name}</p>
@@ -84,7 +84,7 @@ export default function ProfilePage() {
                   <span className="text-white"> {user.user_name} </span>
                 </p>
               </div>
-              <div className="clubs-container">
+              <div className="clubs-container mt-2">
                 {userClubs.map((dataItem) => {
                   return (
                     <div key={dataItem.id}>
