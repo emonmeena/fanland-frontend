@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useHistory, useLocation, useParams } from "react-router-dom";
 import Club from "../club";
 import PageNotFound from "../pageNotFound";
 import { useAuth } from "../../auth/useAuth";
 import { Dropdown } from "react-bootstrap";
 import djangoRESTAPI from "../../api/djangoRESTAPI";
+import EditFanclub from "../editFanclub";
 
 export default function ClubPage() {
   const [fanclub, setFanclub] = useState(null);
@@ -20,8 +21,11 @@ export default function ClubPage() {
   const [isCreator, setIsCreator] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [creator, setCreator] = useState(null);
+  const [modelShow, setModelShow] = useState(false);
   const { clubId } = useParams();
 
+  let history = useHistory();
+  let location = useLocation();
   let auth = useAuth();
   let userId = auth.user.id;
   let userName = auth.user.user_name;
@@ -53,6 +57,7 @@ export default function ClubPage() {
           setJoinState("Leave Club");
           setActiveState("not-active");
         }
+        postRecentClubs();
         setView(1);
       })
       .catch((err) => {
@@ -80,11 +85,21 @@ export default function ClubPage() {
     setLikedClubs([]);
   };
 
+  const postRecentClubs = async () => {
+    await djangoRESTAPI.get(`userdetails/${userId}`).then(async (res) => {
+      await djangoRESTAPI.put(`userdetails/${userId}/`, {
+        recent_clubs: [...res.data.recent_clubs, clubId],
+      });
+    });
+  };
+
   useEffect(() => {
-    resetStates();
-    setView(0);
-    fetchClub();
-  }, [clubId]);
+    if (!modelShow) {
+      setView(0);
+      resetStates();
+      fetchClub();
+    }
+  }, [clubId, modelShow]);
 
   const remove = (ele, value) => {
     return ele != value;
@@ -92,7 +107,6 @@ export default function ClubPage() {
   const handleLikeClub = async () => {
     if (isLiked) {
       let changedLikedClubs = likedClubs.filter((ele) => remove(ele, clubId));
-      console.log(likedClubs);
       await djangoRESTAPI.put(`userdetails/${userId}/`, {
         liked_clubs: changedLikedClubs,
       });
@@ -148,175 +162,194 @@ export default function ClubPage() {
     setisMember(!isMember);
   };
 
+  const deleteFanclub = async () => {
+    let { from } = location.state || {
+      from: { pathname: `/app/made_by_me/` },
+    };
+    await djangoRESTAPI
+      .delete(`fanclubs/${clubId}`)
+      .then(() => {
+        history.replace(from);
+      })
+      .catch((err) => console.log(err));
+  };
+
   const viewNotFound = () => {
     return <PageNotFound />;
   };
 
   const viewMain = () => {
     return (
-      <div className="px-3 pt-3">
-        <div className="top-clubpage">
-          <div className="row">
-            <div className="col-2">
-              <div
-                className="club-image-container"
-                style={{
-                  backgroundImage: `url(http://localhost:8000${fanclub.image})`,
-                }}
-              ></div>
-            </div>
-            <div className="col-9 d-flex">
-              <div className="align-self-end">
-                <div>
-                  <p className="fw-bolder fs-larger">{fanclub.name}</p>
-                </div>
-                <div>
-                  <p className="fs-secondary">
-                    {fanclub.des} <br />
-                    created by{" "}
-                    <Link
-                      to={`/app/users/${fanclub.creator}`}
-                      className="link-2 text-white"
-                    >
-                      {creator}
-                    </Link>
-                    {","}
-                    <i className="fas fa-users mx-1"></i>
-                    {fanclub.members.length}
-                  </p>
-                </div>
-                <div className="pt-3 d-flex">
-                  {isCreator ? (
-                    ""
-                  ) : (
-                    <button
-                      onClick={handleJoinButtonClick}
-                      className={`btn rounded-pill p-2 px-3 ${activeState}`}
-                    >
-                      {joinState}
-                    </button>
-                  )}
-                  <div className="d-flex mx-3">
-                    <button
-                      className="border-0 bg-color-primary fs-primary text-white scale"
-                      onClick={handleLikeClub}
-                    >
-                      {isLiked ? (
-                        <i className="fas fa-heart"></i>
-                      ) : (
-                        <i className="far fa-heart"></i>
-                      )}
-                    </button>
-                    <Link to={`/app/chats/${clubId}`}>
-                      <button className="border-0 bg-color-primary fs-primary pt-2 mx-2 text-white scale">
-                        <i className="fas fa-comments"></i>
+      <>
+        <EditFanclub
+          show={modelShow}
+          onHide={() => setModelShow(false)}
+          clubData={fanclub}
+        />
+        <div className="px-3 pt-3">
+          <div className="top-clubpage">
+            <div className="row">
+              <div className="col-2">
+                <div
+                  className="club-image-container"
+                  style={{
+                    backgroundImage: `url(http://localhost:8000${fanclub.image})`,
+                  }}
+                ></div>
+              </div>
+              <div className="col-9 d-flex">
+                <div className="align-self-end">
+                  <div>
+                    <p className="fw-bolder fs-larger">{fanclub.name}</p>
+                  </div>
+                  <div>
+                    <p className="fs-secondary">
+                      {fanclub.des} <br />
+                      created by{" "}
+                      <Link
+                        to={`/app/users/${fanclub.creator}`}
+                        className="link-2 text-white"
+                      >
+                        {creator}
+                      </Link>
+                      {","}
+                      <i className="fas fa-users mx-1"></i>
+                      {fanclub.members.length}
+                    </p>
+                  </div>
+                  <div className="pt-3 d-flex">
+                    {isCreator ? (
+                      ""
+                    ) : (
+                      <button
+                        onClick={handleJoinButtonClick}
+                        className={`btn rounded-pill p-2 px-3 ${activeState}`}
+                      >
+                        {joinState}
                       </button>
-                    </Link>
-                    {isAdmin ? (
-                      <div className="pt-2">
-                        <Dropdown>
-                          <Dropdown.Toggle
-                            bsPrefix="bg-color-primary text-white rounded-circle px-1 border"
-                            as="button"
-                            id="dropdown-basic"
-                          >
-                            <i className="fas fa-ellipsis-h"></i>
-                          </Dropdown.Toggle>
+                    )}
+                    <div className="d-flex mx-3">
+                      <button
+                        className="border-0 bg-color-primary fs-primary text-white scale"
+                        onClick={handleLikeClub}
+                      >
+                        {isLiked ? (
+                          <i className="fas fa-heart"></i>
+                        ) : (
+                          <i className="far fa-heart"></i>
+                        )}
+                      </button>
+                      <Link to={`/app/chats/${clubId}`}>
+                        <button className="border-0 bg-color-primary fs-primary pt-2 mx-2 text-white scale">
+                          <i className="fas fa-comments"></i>
+                        </button>
+                      </Link>
+                      {isAdmin ? (
+                        <div className="pt-2">
+                          <Dropdown>
+                            <Dropdown.Toggle
+                              bsPrefix="bg-color-primary text-white rounded-circle px-1 border"
+                              as="button"
+                              id="dropdown-basic"
+                            >
+                              <i className="fas fa-ellipsis-h"></i>
+                            </Dropdown.Toggle>
 
-                          <Dropdown.Menu bsPrefix="bg-color-tertiary mt-2">
-                            <Dropdown.Item
-                              href="#/action-1"
-                              className="fs-secondary"
-                            >
-                              Edit
-                            </Dropdown.Item>
-                            <Dropdown.Item
-                              href="#/action-2"
-                              className="fs-secondary"
-                            >
-                              Settings
-                            </Dropdown.Item>
-                            {fanclub.creator === userId ? (
+                            <Dropdown.Menu bsPrefix="bg-color-tertiary mt-2">
                               <Dropdown.Item
-                                href="#/action-3"
+                                onClick={() => setModelShow(true)}
                                 className="fs-secondary"
                               >
-                                Delete Fanclub
+                                Edit
                               </Dropdown.Item>
-                            ) : (
-                              ""
-                            )}
-                          </Dropdown.Menu>
-                        </Dropdown>
-                      </div>
-                    ) : (
-                      <div></div>
-                    )}
+                              {/* <Dropdown.Item
+                                href="#/action-2"
+                                className="fs-secondary"
+                              >
+                                Settings
+                              </Dropdown.Item> */}
+                              {fanclub.creator === userId ? (
+                                <Dropdown.Item
+                                  onClick={() => deleteFanclub()}
+                                  className="fs-secondary"
+                                >
+                                  Delete Fanclub
+                                </Dropdown.Item>
+                              ) : (
+                                ""
+                              )}
+                            </Dropdown.Menu>
+                          </Dropdown>
+                        </div>
+                      ) : (
+                        <div></div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="pt-4">
-            <div className="custom-border-bottom py-2">
-              <p>
-                <i className="far fa-gem"></i> Top Fans
-              </p>
-            </div>
-            <div className="py-2">
-              {topFans.slice(0, 5).map((fan) => {
-                return (
-                  <div className="my-2" key={fan.user_id}>
-                    <div className="d-flex">
-                      <img
-                        src={`${fan.user_profile_image}`}
-                        alt="Profile"
-                        height="30"
-                      />
-                      <Link
-                        to={`/app/users/${fan.user_id}`}
-                        className="link-2 mx-2"
-                      >
-                        <p className="pt-1 px-1">{fan.user_name}</p>
-                      </Link>
+            <div className="pt-4">
+              <div className="custom-border-bottom py-2">
+                <p>
+                  <i className="far fa-gem"></i> Top Fans
+                </p>
+              </div>
+              <div className="py-2">
+                {topFans.slice(0, 5).map((fan) => {
+                  return (
+                    <div className="my-2" key={fan.user_id}>
+                      <div className="d-flex">
+                        <img
+                          src={`${fan.user_profile_image}`}
+                          alt="Profile"
+                          height="30"
+                        />
+                        <Link
+                          to={`/app/users/${fan.user_id}`}
+                          className="link-2 mx-2"
+                        >
+                          <p className="pt-1 px-1">{fan.user_name}</p>
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
-          <div className="pt-4">
-            <div className="d-flex justify-content-between custom-border-bottom py-2">
-              <p className="fs-secondary">
-                Fanclubs by <span className="text-white"> {creator} </span>
-              </p>
-              <Link
-                to={`/app/users/${fanclub.creator}`}
-                className="link-2 text-white"
-              >
-                See All
-              </Link>
-            </div>
-            <div className="d-flex flex-nowrap col-6">
-              {moreClubsdata.map((dataItem, index) => {
-                return (
-                  <div
-                    key={dataItem.id}
-                    className={`px-${index === 0 ? 0 : 3} py-3`}
-                  >
-                    <Club
-                      clubName={dataItem.name}
-                      clubDes={dataItem.des}
-                      clubId={dataItem.id}
-                      imageurl={dataItem.image}
-                    />
-                  </div>
-                );
-              })}
+            <div className="pt-4">
+              <div className="d-flex justify-content-between custom-border-bottom py-2">
+                <p className="fs-secondary">
+                  Fanclubs by <span className="text-white"> {creator} </span>
+                </p>
+                <Link
+                  to={`/app/users/${fanclub.creator}`}
+                  className="link-2 text-white"
+                >
+                  See All
+                </Link>
+              </div>
+              <div className="clubs-container mt-2">
+                {moreClubsdata.map((dataItem, index) => {
+                  return (
+                    <div
+                      key={dataItem.id}
+                      className={`px-${index === 0 ? 0 : 3} py-3`}
+                    >
+                      <Club
+                        clubName={dataItem.name}
+                        clubDes={dataItem.des}
+                        clubId={dataItem.id}
+                        imageurl={dataItem.image}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </>
     );
   };
   switch (viewpoint) {

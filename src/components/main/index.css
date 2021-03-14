@@ -48,6 +48,11 @@ input[type="file"] {
   width: 230px;
 }
 
+.overflow-y {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 .img-upload:before {
   content: "\f093";
   font-size: 90px;
@@ -210,8 +215,8 @@ button:hover {
 .err-mssg {
   color: red;
 }
-.error-auth{
-  border: solid red ;
+.error-auth {
+  border: solid red;
 }
 
 .scale:hover {

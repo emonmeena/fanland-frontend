@@ -10,20 +10,39 @@ export default function DefaultPreview({ title, endpoint, tags }) {
   const [data, setData] = useState([]);
   const [isLoading, setLoading] = useState(true);
 
-  const fetchClubs = async () => {
+  const fetchAllClubs = async () => {
+    await djangoRESTAPI.get(`fanclubs/`).then((res) => {
+      setData(res.data);
+      setLoading(false);
+    });
+  };
+
+  const fetchClubsByEndpoint = async () => {
     await djangoRESTAPI
       .get(`userdetails/${auth.user.id}/${endpoint}`)
       .then((res) => {
-        res.data.map((clubId) => {
-          djangoRESTAPI
-            .get(`fanclubs_basic/${clubId}`)
-            .then((res) => setData((data) => [...data, res.data]));
+        res.data.map(async (clubId) => {
+          await djangoRESTAPI.get(`fanclubs_basic/${clubId}`).then((res) => {
+            setData((data) => [...data, res.data]);
+          });
         });
+        setLoading(false);
       })
       .catch((err) => {
         console.log(err);
       });
-    setLoading(false);
+  };
+
+  const fetchClubs = async () => {
+    switch (endpoint) {
+      case "":
+        fetchAllClubs();
+        break;
+
+      default:
+        fetchClubsByEndpoint();
+        break;
+    }
   };
 
   useEffect(() => {
@@ -58,7 +77,6 @@ export default function DefaultPreview({ title, endpoint, tags }) {
         ) : (
           <div className="py-3"></div>
         )}
-        {/* <p className="fw-bold pb-1"></p> */}
         <div className="custom-border-top pt-3">
           <div className="clubs-container">
             {data.map((dataItem) => {

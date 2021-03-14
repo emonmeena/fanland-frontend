@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 import { Link, useParams } from "react-router-dom";
-import { Spinner } from "react-bootstrap";
+import { Spinner, Dropdown } from "react-bootstrap";
 import "./index.css";
 import { useAuth } from "../../auth/useAuth";
 import djangoRESTAPI from "../../api/djangoRESTAPI";
@@ -14,7 +14,7 @@ export default function ClubChatRoom() {
   const [chatMessages, setChatMessages] = useState([]);
   const [clubMmebers, setClubMembers] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
-  const [message, setMessage] = useState(null);
+  const [message, setMessage] = useState("");
   const [isImageMessage, setIsImageMessage] = useState(false);
   const [isMember, setisMember] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -190,9 +190,30 @@ export default function ClubChatRoom() {
     }
   };
 
+  const banUser = async (userId) => {
+    await djangoRESTAPI.get(`fanclubs/${chatRoomId}`).then(async (res) => {
+      await djangoRESTAPI.put(`fanclubs/${res.data.id}/`, {
+        banned_users: [...res.data.banned_users, userId],
+      });
+    });
+  };
+
+  const deleteChat = async (chatId) => {
+    await djangoRESTAPI
+      .delete(`chat/${chatId}`)
+      .then(() => {
+        let chatComponent = document.getElementById(chatId);
+        chatComponent.classList.add("d-none");
+      })
+      .catch((err) => console.log(err));
+  };
+
   const ComponentChat = ({ chat }) => {
     return (
-      <div className={`message-box py-2 px-1 d-flex justify-content-between`}>
+      <div
+        id={chat.id}
+        className={`message-box py-2 px-1 d-flex justify-content-between`}
+      >
         <div className="d-flex">
           <img
             src={chat.author_image}
@@ -241,11 +262,17 @@ export default function ClubChatRoom() {
               </Dropdown.Toggle>
 
               <Dropdown.Menu align="left" bsPrefix="bg-color-secondary">
-                <Dropdown.Item href="#/action-1" className="fs-secondary">
+                <Dropdown.Item
+                  onClick={() => deleteChat(chat.id)}
+                  className="fs-secondary"
+                >
                   Delete Post
                 </Dropdown.Item>
-                {isAdmin ? (
-                  <Dropdown.Item href="#/action-2" className="fs-secondary">
+                {isAdmin && userId != fanclub.creator ? (
+                  <Dropdown.Item
+                    onClick={() => banUser(userId)}
+                    className="fs-secondary"
+                  >
                     Ban {chat.author}
                   </Dropdown.Item>
                 ) : (
@@ -329,7 +356,7 @@ export default function ClubChatRoom() {
                     <div>
                       <p className="fs-smaller px-2 pt-1">
                         <Link
-                          to={`/app/users/${item.user_name}`}
+                          to={`/app/users/${item.user_id}`}
                           className="link link-hover-underline text-white"
                         >
                           {item.user_name}
@@ -337,13 +364,18 @@ export default function ClubChatRoom() {
                         <span className="fs-smallest px-2"> 1 hour</span>
                       </p>
                     </div>
-                    {!isAdmin ? (
-                      <div></div>
-                    ) : (
-                      <div className="fs-secondary pt-1 member-options">
+                    {isAdmin && userId != item.user_id ? (
+                      <div className="pt-1 member-options">
                         <i className="fas fa-user-plus"></i>
-                        <i className="fas fa-ban px-lg-2"></i>
+                        <button
+                          className="bg-color-secondary"
+                          onClick={() => banUser(item.user_id)}
+                        >
+                          <i className="fas fa-ban px-lg-2 fs-secondary "></i>
+                        </button>
                       </div>
+                    ) : (
+                      <div></div>
                     )}
                   </div>
                 );

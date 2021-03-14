@@ -4,9 +4,9 @@ import { useHistory, useLocation } from "react-router-dom";
 import djangoRESTAPI from "../../api/djangoRESTAPI";
 import { useAuth } from "../../auth/useAuth";
 
-export default function CreateFanClub(props) {
-  const [clubTitle, setTitle] = useState("");
-  const [clubDes, setDes] = useState("");
+export default function EditFanclub(props) {
+  const [clubTitle, setTitle] = useState(props.clubData.name);
+  const [clubDes, setDes] = useState(props.clubData.des);
   const [imageFile, setImageFile] = useState(null);
   const [clubImage, setImage] = useState(null);
 
@@ -23,42 +23,33 @@ export default function CreateFanClub(props) {
     setImageFile(null);
   };
 
-  const createClub = async (e) => {
+  const editClub = async (e) => {
     e.preventDefault();
 
     let form_data = new FormData();
-
-    form_data.append("name", clubTitle);
-    form_data.append("des", clubDes);
-    if (imageFile) form_data.append("image", imageFile);
-    form_data.append("creator", userId);
-    form_data.append("top_fans", [userId]);
-    form_data.append("members", [userId]);
-    form_data.append("admin_members", [userId]);
-
     await djangoRESTAPI
-      .post(`fanclubs/`, form_data, {
-        headers: {
-          "content-type": "multipart/form-data",
-        },
-      })
-      .then(async (res) => {
+      .get(`fanclubs/${props.clubData.id}`)
+      .then(async (oldData) => {
+        form_data.append("name", clubTitle);
+        form_data.append("des", clubDes);
+        if (imageFile) form_data.append("image", imageFile);
+        form_data.append("top_fans", oldData.data.top_fans);
+        form_data.append("members", oldData.data.members);
+        form_data.append("admin_members", oldData.data.admin_members);
         await djangoRESTAPI
-          .get(`userdetails/${userId}/`)
-          .then(async (userdetail) => {
-            await djangoRESTAPI
-              .put(`userdetails/${userId}/`, {
-                admin_clubs: [...userdetail.data.admin_clubs, res.data],
-                following_clubs: [...userdetail.data.following_clubs, res.data],
-              })
-              .catch((err) => console.log(err));
-          });
-        resetStates();
-        props.onHide();
-        let { from } = location.state || {
-          from: { pathname: `/app/clubs/${res.data}` },
-        };
-        history.replace(from);
+          .put(`fanclubs/${props.clubData.id}/`, form_data, {
+            headers: {
+              "content-type": "multipart/form-data",
+            },
+          })
+          .then(() => {
+            props.onHide();
+            let { from } = location.state || {
+              from: { pathname: `/app/clubs/${props.clubData.id}` },
+            };
+            history.replace(from);
+          })
+          .catch((err) => console.log(err));
       })
       .catch((err) => console.log(err));
   };
@@ -84,7 +75,7 @@ export default function CreateFanClub(props) {
     >
       <div className="d-flex px-2">
         <div className="col-11 text-center">
-          <p className="fw-bold fs-5">Create Fanclub</p>
+          <p className="fw-bold fs-5">Edit Fanclub</p>
         </div>
         <div className="col-1 text-end">
           <button className="bg-color-primary" onClick={() => props.onHide()}>
@@ -99,24 +90,16 @@ export default function CreateFanClub(props) {
               <div
                 className="club-image-container bg-color-tertiary d-flex justify-content-center align-items-center"
                 style={{
-                  backgroundImage: `url(${clubImage})`,
+                  backgroundImage: clubImage
+                    ? `url(${clubImage})`
+                    : `url(http://localhost:8000${props.clubData.image})`,
                 }}
-              >
-                {clubImage ? (
-                  ""
-                ) : (
-                  <p className="fs-secondary text-center">
-                    <i class="fas fa-camera fs-primary"></i>
-                    <br />
-                    Click here to add an Image
-                  </p>
-                )}
-              </div>
+              ></div>
             </label>
             <input id="photo-upload" type="file" onChange={photoUpload} />
           </div>
           <div className="col-8">
-            <form onSubmit={createClub}>
+            <form onSubmit={editClub}>
               <div className="form-group">
                 <label htmlFor="clubName">
                   <p className="fs-secondary">Name</p>
@@ -152,7 +135,7 @@ export default function CreateFanClub(props) {
                 <input
                   type="submit"
                   className="bg-color-green border-0 p-2 px-3 rounded mt-3 text-white"
-                  value="CREATE"
+                  value="SAVE"
                 />
               </div>
             </form>
