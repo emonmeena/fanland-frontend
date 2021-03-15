@@ -1,3 +1,7 @@
+.custom-overflow {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
 .chat-box {
   height: 83vh;
   /* display: inline-block; */

@@ -216,9 +216,7 @@ export default function Main() {
                   <Link to={`/app/users/${auth.user.id}`} className="link-2">
                     <p className="pt-1 px-1">{auth.user.user_name}</p>
                   </Link>
-                  <button className="pt-1 px-2 bg-color-primary border-0">
-                    <i className="fas fa-chevron-down icon-style-2"></i>
-                  </button>
+                  
                   <div className="pt-1">
                     <Dropdown>
                       <Dropdown.Toggle

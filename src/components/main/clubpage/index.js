@@ -3,7 +3,7 @@ import { Link, useHistory, useLocation, useParams } from "react-router-dom";
 import Club from "../club";
 import PageNotFound from "../pageNotFound";
 import { useAuth } from "../../auth/useAuth";
-import { Dropdown } from "react-bootstrap";
+import { Dropdown, Spinner } from "react-bootstrap";
 import djangoRESTAPI from "../../api/djangoRESTAPI";
 import EditFanclub from "../editFanclub";
 
@@ -228,7 +228,7 @@ export default function ClubPage() {
                         {joinState}
                       </button>
                     )}
-                    <div className="d-flex mx-3">
+                    <div className="d-flex mx-">
                       <button
                         className="border-0 bg-color-primary fs-primary text-white scale"
                         onClick={handleLikeClub}
@@ -360,6 +360,11 @@ export default function ClubPage() {
       return viewNotFound();
 
     default:
-      return <div>Loading...</div>;
+      return (
+        <div className="d-flex">
+          <Spinner animation="border" role="status"></Spinner>
+          <p className="fs-primary fs-medium px-3">Loading...</p>
+        </div>
+      );
   }
 }

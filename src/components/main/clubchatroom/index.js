@@ -153,9 +153,12 @@ export default function ClubChatRoom() {
       return (
         <form action="#" onSubmit={onFormSubmit} id="send-container">
           <div className="d-flex bg-color-secondary px-2 pt-1">
-            <button className="bg-color-secondary border-0">
+            <label
+              htmlFor="photo-upload"
+              className="bg-color-secondary border-0"
+            >
               <i className="fas fa-photo-video text-white"></i>
-            </button>
+            </label>
             <input
               id="photo-upload"
               type="file"
@@ -177,7 +180,7 @@ export default function ClubChatRoom() {
       return (
         <div className="d-flex bg-color-secondary">
           <button
-            className="bg-color-yellow border-0 p-2 rounded"
+            className="bg-color-yellow border-0 p-2 rounded-pill"
             onClick={joinUser}
           >
             Join now

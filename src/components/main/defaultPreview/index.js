@@ -3,6 +3,7 @@ import { NavLink, useRouteMatch } from "react-router-dom";
 import Club from "../club";
 import { useAuth } from "../../auth/useAuth";
 import djangoRESTAPI from "../../api/djangoRESTAPI";
+import { Spinner } from "react-bootstrap";
 
 export default function DefaultPreview({ title, endpoint, tags }) {
   let { url } = useRouteMatch();
@@ -50,7 +51,10 @@ export default function DefaultPreview({ title, endpoint, tags }) {
   }, [endpoint, tags]);
 
   return isLoading ? (
-    <div>Loading...</div>
+    <div className="d-flex">
+      <Spinner animation="border" role="status"></Spinner>
+      <p className="fs-primary fs-medium px-3">Loading...</p>
+    </div>
   ) : (
     <div className="px-3 overflow-auto container-home">
       <div>
