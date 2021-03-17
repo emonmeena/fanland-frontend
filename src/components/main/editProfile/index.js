@@ -26,7 +26,7 @@ export default function EditProfile(props) {
     form_data.append("user_status", userStatus);
     if (imageFile) form_data.append("user_profile_image", imageFile);
     await djangoRESTAPI
-      .put(`userdetails/${auth.user.id}/`, form_data, {
+      .put(`modify_userdetails/${auth.user.id}/`, form_data, {
         headers: {
           "content-type": "multipart/form-data",
         },

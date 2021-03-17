@@ -210,13 +210,14 @@ export default function Main() {
                     src={auth.user.user_profile_image}
                     alt="Profile"
                     height="30"
+                    width="30"
+                    className="profile-border rounded-circle mx-2"
                     style={{ borderRadius: "50%" }}
-                    className="mx-2"
                   />
                   <Link to={`/app/users/${auth.user.id}`} className="link-2">
                     <p className="pt-1 px-1">{auth.user.user_name}</p>
                   </Link>
-                  
+
                   <div className="pt-1">
                     <Dropdown>
                       <Dropdown.Toggle
@@ -228,15 +229,17 @@ export default function Main() {
                       </Dropdown.Toggle>
 
                       <Dropdown.Menu bsPrefix="bg-color-tertiary">
-                        <Dropdown.Item
-                          onClick={editProfile}
-                          className="fs-secondary"
-                        >
-                          Edit
+                        <Dropdown.Item onClick={console.log("")}>
+                          <Link
+                            to={`/app/users/${auth.user.id}`}
+                            className="text-decoration-none"
+                          >
+                            <p className="fs-secondary pt-1 px-1">Edit</p>
+                          </Link>
                         </Dropdown.Item>
-                        <Dropdown.Item href="#" className="fs-secondary">
+                        {/* <Dropdown.Item href="#" className="fs-secondary">
                           Settings
-                        </Dropdown.Item>
+                        </Dropdown.Item> */}
                         <Dropdown.Item
                           onClick={logout}
                           className="fs-secondary"

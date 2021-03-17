@@ -143,7 +143,8 @@ export default function ClubChatRoom() {
 
   const scroll = () => {
     let messageContainer = document.getElementById("message-container");
-    messageContainer.scrollTo(0, messageContainer.scrollHeight);
+    if (messageContainer)
+      messageContainer.scrollTo(0, messageContainer.scrollHeight);
   };
 
   const joinUser = async () => {
@@ -199,7 +200,7 @@ export default function ClubChatRoom() {
       return (
         <div className="d-flex bg-color-secondary">
           <button
-            className="bg-color-yellow border-0 p-2 rounded-pill"
+            className="bg-color-yellow border-0 p-2 rounded"
             onClick={joinUser}
           >
             Join now
@@ -242,8 +243,9 @@ export default function ClubChatRoom() {
             src={chat.author_image}
             alt="Profile"
             height="46"
+            width="46"
             style={{ borderRadius: "50%" }}
-            className="mx-1"
+            className="rounded-cicle mx-1"
           />
           <p className="fs-smaller px-3">
             <Link
@@ -372,6 +374,8 @@ export default function ClubChatRoom() {
                         src={item.user_profile_image}
                         alt="Profile"
                         height="30"
+                        width="30"
+                        className="rounded-circle"
                         style={{ borderRadius: "50%" }}
                       />
                       <span className="dot dot-active"></span>
@@ -417,7 +421,7 @@ export default function ClubChatRoom() {
       return <div>Something went wrong, please try after some time.</div>;
     default:
       return (
-        <div>
+        <div className="d-flex">
           <Spinner animation="border" role="status"></Spinner>
           <p className="fs-primary fs-medium px-3">Loading...</p>
         </div>

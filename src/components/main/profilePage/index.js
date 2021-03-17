@@ -52,7 +52,7 @@ export default function ProfilePage() {
           onHide={() => setModelShow(false)}
           userStatus={user.user_status}
         />
-        <div className="overflow-y">
+        <div className="overflow-y" style={{height: "95vh"}} >
           <div className="px-3 pt-3">
             <div className="top-clubpage">
               <div className="row">

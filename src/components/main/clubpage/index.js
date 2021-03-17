@@ -305,7 +305,7 @@ export default function ClubPage() {
                 </p>
               </div>
               <div className="py-2">
-                {topFans.slice(0, 5).map((fan) => {
+                {topFans.map((fan) => {
                   return (
                     <div className="my-2" key={fan.user_id}>
                       <div className="d-flex">
@@ -313,6 +313,8 @@ export default function ClubPage() {
                           src={`${fan.user_profile_image}`}
                           alt="Profile"
                           height="30"
+                          width="30"
+                          className="rounded-circle"
                         />
                         <Link
                           to={`/app/users/${fan.user_id}`}
@@ -326,7 +328,7 @@ export default function ClubPage() {
                 })}
               </div>
             </div>
-            <div className="pt-4">
+            <div className="pt-1">
               <div className="d-flex justify-content-between custom-border-bottom py-2">
                 <p className="fs-secondary">
                   Fanclubs by <span className="text-white"> {creator} </span>
