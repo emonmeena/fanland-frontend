@@ -50,7 +50,7 @@ export default function ClubPage() {
             setisLiked(likedClubs.data.includes(res.data.id));
           });
         setIsAdmin(res.data.admin_members.includes(userId));
-        fetchTopFans(res.data.top_fans);
+        fetchTopFans();
         fetchMoreClubs(res.data.creator);
         if (res.data.members.includes(userId)) {
           setisMember(true);
@@ -65,12 +65,21 @@ export default function ClubPage() {
         setView(2);
       });
   };
-  const fetchTopFans = (topFanIds) => {
-    topFanIds.map(async (fanId) => {
-      await djangoRESTAPI.get(`userdetails_basic/${fanId}`).then((res) => {
-        setTopFans((data) => [...data, res.data]);
+  const fetchTopFans = async () => {
+    await djangoRESTAPI.get(`fans/${clubId}`).then((res) => {
+      res.data.map(async (fanObject) => {
+        await djangoRESTAPI
+          .get(`userdetails_basic/${fanObject.fan_id}`)
+          .then((res) => {
+            setTopFans((data) => [...data, res.data]);
+          });
       });
     });
+    // topFanIds.map(async (fanId) => {
+    //   await djangoRESTAPI.get(`userdetails_basic/${fanId}`).then((res) => {
+    //     setTopFans((data) => [...data, res.data]);
+    //   });
+    // });
   };
   const fetchMoreClubs = async (creator) => {
     await djangoRESTAPI
