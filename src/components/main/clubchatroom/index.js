@@ -61,12 +61,13 @@ export default function ClubChatRoom() {
         })
         .then((res) => {
           let sampleChat = {
+            id: res.data.id,
             author_id: userId,
-            chatRoomId: chatRoomId,
+            chatroom_id: chatRoomId,
             author_name: userName,
             author_image: userProfilePic,
             message: message,
-            media: res.data,
+            media: res.data.media,
             is_image_message: isImageMessage,
           };
           socket.emit("chat-message", sampleChat);
@@ -115,13 +116,15 @@ export default function ClubChatRoom() {
     });
     socket.on("user-online", (activeUser) => {
       setOnlineUsers([...onlineUsers, activeUser.userName]);
-      // to be updated
     });
 
     socket.on("receive-message", (chat) => {
-      // queryselector
       setChatMessages((data) => [...data, chat]);
       scroll();
+    });
+    socket.on("to-delete-chat", (chatId) => {
+      let chatComponent = document.getElementById(chatId);
+      chatComponent.innerHTML = "This message was deleted";
     });
     setSocket(true);
   };
@@ -207,6 +210,7 @@ export default function ClubChatRoom() {
       .then(() => {
         let chatComponent = document.getElementById(chatId);
         chatComponent.classList.add("d-none");
+        socket.emit("chat-delete", { chatroomId: chatRoomId, chatId: chatId });
       })
       .catch((err) => console.log(err));
   };

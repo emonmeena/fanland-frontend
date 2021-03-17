@@ -4,45 +4,39 @@ import { useHistory, useLocation } from "react-router-dom";
 import djangoRESTAPI from "../../api/djangoRESTAPI";
 import { useAuth } from "../../auth/useAuth";
 
-export default function EditFanclub(props) {
-  const [clubTitle, setTitle] = useState(props.clubData.name);
-  const [clubDes, setDes] = useState(props.clubData.des);
-  const [imageFile, setImageFile] = useState(null);
-  const [clubImage, setImage] = useState(null);
-
+export default function EditProfile(props) {
   let auth = useAuth();
-  let userId = auth.user.id;
+  const [userStatus, setUserStatus] = useState(props.userStatus);
+  const [imageFile, setImageFile] = useState(null);
+  const [userProfileImage, setImage] = useState(null);
 
   let history = useHistory();
   let location = useLocation();
 
   const resetStates = () => {
-    setTitle("");
-    setDes("");
+    setUserStatus("");
     setImage(null);
     setImageFile(null);
   };
 
-  const editClub = async (e) => {
+  const editUserDetails = async (e) => {
     e.preventDefault();
 
     let form_data = new FormData();
-    await djangoRESTAPI.get(`fanclubs/${props.clubData.id}`);
-    form_data.append("name", clubTitle);
-    form_data.append("des", clubDes);
-    if (imageFile) form_data.append("image", imageFile);
+    form_data.append("user_status", userStatus);
+    if (imageFile) form_data.append("user_profile_image", imageFile);
     await djangoRESTAPI
-      .put(`fanclubs/${props.clubData.id}/`, form_data, {
+      .put(`userdetails/${auth.user.id}/`, form_data, {
         headers: {
           "content-type": "multipart/form-data",
         },
       })
       .then(() => {
-        props.onHide();
         let { from } = location.state || {
-          from: { pathname: `/app/clubs/${props.clubData.id}` },
+          from: { pathname: `/app/users/${auth.user.id}` },
         };
         history.replace(from);
+        props.onHide();
       })
       .catch((err) => console.log(err));
   };
@@ -68,7 +62,7 @@ export default function EditFanclub(props) {
     >
       <div className="d-flex px-2">
         <div className="col-11 text-center">
-          <p className="fw-bold fs-5">Edit Fanclub</p>
+          <p className="fw-bold fs-5">Edit Profile</p>
         </div>
         <div className="col-1 text-end">
           <button className="bg-color-primary" onClick={() => props.onHide()}>
@@ -83,17 +77,17 @@ export default function EditFanclub(props) {
               <div
                 className="club-image-container bg-color-tertiary d-flex justify-content-center align-items-center"
                 style={{
-                  backgroundImage: clubImage
-                    ? `url(${clubImage})`
-                    : `url(http://localhost:8000${props.clubData.image})`,
+                  backgroundImage: userProfileImage
+                    ? `url(${userProfileImage})`
+                    : `url(${auth.user.user_profile_image})`,
                 }}
               ></div>
             </label>
             <input id="photo-upload" type="file" onChange={photoUpload} />
           </div>
           <div className="col-8">
-            <form onSubmit={editClub}>
-              <div className="form-group">
+            <form onSubmit={editUserDetails}>
+              {/* <div className="form-group">
                 <label htmlFor="clubName">
                   <p className="fs-secondary">Name</p>
                 </label>
@@ -108,19 +102,19 @@ export default function EditFanclub(props) {
                     setTitle(e.target.value);
                   }}
                 />
-              </div>
+              </div> */}
               <div className="form-group mt-2">
-                <label htmlFor="clubDes">
-                  <p className="fs-secondary">Description</p>
+                <label htmlFor="userStatus">
+                  <p className="fs-secondary">Status</p>
                 </label>
                 <textarea
                   type="text"
-                  id="clubDes"
+                  id="userStatus"
                   className="form-control mt-1"
                   placeholder="Give your fanclub a catchy description."
-                  value={clubDes}
+                  value={userStatus}
                   required
-                  onChange={(e) => setDes(e.target.value)}
+                  onChange={(e) => setUserStatus(e.target.value)}
                   rows={5}
                 ></textarea>
               </div>

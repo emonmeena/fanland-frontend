@@ -28,7 +28,7 @@ export default function Club({ imageurl, clubName, clubDes, clubId }) {
         <h6 className="fw-bold mb-1">
           <p>{clubName}</p>
         </h6>
-        <p className="text-white-50 small-text">{clubDes}</p>
+        <p className="text-white-50 small-text text-truncate">{clubDes}</p>
       </div>
     </div>
   );
