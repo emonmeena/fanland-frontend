@@ -146,9 +146,25 @@ export default function ClubChatRoom() {
     messageContainer.scrollTo(0, messageContainer.scrollHeight);
   };
 
-  const joinUser = () => {
-    setisMember(true);
-    // update require
+  const joinUser = async () => {
+    await djangoRESTAPI
+      .get(`userdetails/${userId}/following_clubs`)
+      .then(async (res) => {
+        await djangoRESTAPI
+          .put(`userdetails/${userId}/`, {
+            following_clubs: [...res.data, chatRoomId],
+          })
+          .then(() => setisMember(true))
+          .catch((err) => console.log(err));
+      })
+      .catch((err) => console.log(err));
+
+    await djangoRESTAPI.get(`fanclubs/${chatRoomId}`).then(async (res) => {
+      await djangoRESTAPI.put(`fanclubs/${chatRoomId}/`, {
+        members: [...res.data.members, userId],
+      });
+      setisMember(true);
+    });
   };
 
   const functionsix = () => {
