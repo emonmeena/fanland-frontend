@@ -5,7 +5,7 @@ import { useAuth } from "../../auth/useAuth";
 import djangoRESTAPI from "../../api/djangoRESTAPI";
 import { Spinner } from "react-bootstrap";
 
-export default function DefaultPreview({ title, endpoint, tags }) {
+export default function DefaultPreview({ title, endpoint, tags, descriptive}) {
   let { url } = useRouteMatch();
   const auth = useAuth();
   const [data, setData] = useState([]);
@@ -79,7 +79,9 @@ export default function DefaultPreview({ title, endpoint, tags }) {
             })}
           </div>
         ) : (
-          <div className="py-3"></div>
+          <div className="py-3">
+            <p>{descriptive}</p>
+          </div>
         )}
         <div className="custom-border-top pt-3">
           <div className="clubs-container">

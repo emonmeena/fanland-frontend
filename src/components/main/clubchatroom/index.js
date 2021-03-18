@@ -12,7 +12,7 @@ export default function ClubChatRoom() {
   const [viewpoint, setView] = useState(0);
   const [fanclub, setFanclub] = useState(null);
   const [chatMessages, setChatMessages] = useState([]);
-  const [clubMmebers, setClubMembers] = useState([]);
+  const [clubMembers, setClubMembers] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [message, setMessage] = useState("");
   const [isImageMessage, setIsImageMessage] = useState(false);
@@ -34,11 +34,51 @@ export default function ClubChatRoom() {
     } else if (viewpoint === 1) {
       if (!isSocketOn) handleSocketConnection();
       scroll();
+      return () => {
+        socket.emit("user-deactive", {
+          chatRoomId: chatRoomId,
+          userId: userId,
+        });
+      };
     }
   }, [chatRoomId, viewpoint, fanclub]);
 
   const textChange = (e) => {
     setMessage(e.target.value);
+  };
+
+  const handleSocketConnection = () => {
+    socket.emit("user-active", {
+      userId: userId,
+      chatRoomId: chatRoomId,
+    });
+    socket.on("user-online", (activeUser) => {
+      socket.emit("existing-user", {
+        existingUserId: userId,
+        newUserSocketId: activeUser.socketId,
+      });
+      setOnlineUsers((users) => [...users, activeUser.activeUserId]);
+    });
+
+    socket.on("user-offline", (userId) => {
+      setOnlineUsers((users) => users.filter((ele) => remove(ele, userId)));
+    });
+
+    socket.on("show-existing-user", (userId) => {
+      setOnlineUsers((users) => [...users, userId]);
+    });
+
+    socket.on("receive-message", (chat) => {
+      setChatMessages((data) => [...data, chat]);
+      scroll();
+    });
+    socket.on("to-delete-chat", (chatId) => {
+      let samplechatmessages = chatMessages.filter((ele) =>
+        remove(ele.id, chatId)
+      );
+      setChatMessages(samplechatmessages);
+    });
+    setSocket(true);
   };
 
   const onFormSubmit = async (e) => {
@@ -94,7 +134,10 @@ export default function ClubChatRoom() {
           await djangoRESTAPI
             .get(`userdetails_basic/${userId}`)
             .then((userdetailBasic) => {
-              setClubMembers((members) => [...members, userdetailBasic.data]);
+              setClubMembers((members) => [
+                ...members,
+                { ...userdetailBasic.data, isUserOnline: false },
+              ]);
             })
             .catch((err) => console.log(err));
         });
@@ -107,26 +150,6 @@ export default function ClubChatRoom() {
         console.log(err);
         setView(2);
       });
-  };
-
-  const handleSocketConnection = () => {
-    socket.emit("user-active", {
-      userName: userName,
-      chatRoomId: chatRoomId,
-    });
-    socket.on("user-online", (activeUser) => {
-      setOnlineUsers([...onlineUsers, activeUser.userName]);
-    });
-
-    socket.on("receive-message", (chat) => {
-      setChatMessages((data) => [...data, chat]);
-      scroll();
-    });
-    socket.on("to-delete-chat", (chatId) => {
-      let chatComponent = document.getElementById(chatId);
-      chatComponent.innerHTML = "This message was deleted";
-    });
-    setSocket(true);
   };
 
   const photoUpload = (e) => {
@@ -215,18 +238,30 @@ export default function ClubChatRoom() {
 
   const banUser = async (userId) => {
     await djangoRESTAPI.get(`fanclubs/${chatRoomId}`).then(async (res) => {
-      await djangoRESTAPI.put(`fanclubs/${res.data.id}/`, {
-        banned_users: [...res.data.banned_users, userId],
-      });
+      await djangoRESTAPI
+        .put(`fanclubs/${res.data.id}/`, {
+          banned_users: [...res.data.banned_users, userId],
+        })
+        .then(() => {
+          let sampleMembers = clubMembers.filter((ele) =>
+            remove(ele.user_id, userId)
+          );
+          setClubMembers(sampleMembers);
+        });
     });
+  };
+  const remove = (ele, value) => {
+    return ele != value;
   };
 
   const deleteChat = async (chatId) => {
     await djangoRESTAPI
       .delete(`chat/${chatId}`)
       .then(() => {
-        let chatComponent = document.getElementById(chatId);
-        chatComponent.classList.add("d-none");
+        let samplechatmessages = chatMessages.filter((ele) =>
+          remove(ele.id, chatId)
+        );
+        setChatMessages(samplechatmessages);
         socket.emit("chat-delete", { chatroomId: chatRoomId, chatId: chatId });
       })
       .catch((err) => console.log(err));
@@ -234,10 +269,7 @@ export default function ClubChatRoom() {
 
   const ComponentChat = ({ chat }) => {
     return (
-      <div
-        id={chat.id}
-        className={`message-box py-2 px-1 d-flex justify-content-between`}
-      >
+      <div className={`message-box py-2 px-1 d-flex justify-content-between`}>
         <div className="d-flex">
           <img
             src={chat.author_image}
@@ -275,7 +307,7 @@ export default function ClubChatRoom() {
             {chat.message ? chat.message : ""}
           </p>
         </div>
-        {chat.author_id === userId || isAdmin ? (
+        {chat.author_id == userId || isAdmin ? (
           <div className="pt-2 chat-option px-4">
             <Dropdown>
               <Dropdown.Toggle
@@ -293,12 +325,12 @@ export default function ClubChatRoom() {
                 >
                   Delete Post
                 </Dropdown.Item>
-                {isAdmin && userId != fanclub.creator ? (
+                {isAdmin ? (
                   <Dropdown.Item
                     onClick={() => banUser(userId)}
                     className="fs-secondary"
                   >
-                    Ban {chat.author}
+                    Ban {chat.author_name}
                   </Dropdown.Item>
                 ) : (
                   <div></div>
@@ -366,7 +398,9 @@ export default function ClubChatRoom() {
               <p className="fs-small py-1">Members</p>
             </div>
             <div className="pt-3 participants-container overflow-auto">
-              {clubMmebers.map((item) => {
+              {clubMembers.map((item) => {
+                item.isUserOnline = onlineUsers.includes(item.user_id);
+                if (item.user_id === userId) return "";
                 return (
                   <div className="d-flex py-2 member-box" key={item.user_id}>
                     <div>
@@ -378,7 +412,11 @@ export default function ClubChatRoom() {
                         className="rounded-circle"
                         style={{ borderRadius: "50%" }}
                       />
-                      <span className="dot dot-active"></span>
+                      {item.isUserOnline ? (
+                        <span className="dot dot-active"></span>
+                      ) : (
+                        <span className="dot dot-not-active"></span>
+                      )}
                     </div>
                     <div>
                       <p className="fs-smaller px-2 pt-1">
@@ -391,7 +429,7 @@ export default function ClubChatRoom() {
                         <span className="fs-smallest px-2"> 1 hour</span>
                       </p>
                     </div>
-                    {isAdmin && userId != item.user_id ? (
+                    {isAdmin ? (
                       <div className="pt-1 member-options">
                         <i className="fas fa-user-plus"></i>
                         <button

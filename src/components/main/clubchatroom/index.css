@@ -55,7 +55,7 @@
   background-color: green;
 }
 .dot-not-active {
-  background-color: rgb(165, 5, 5);
+  background-color: orange;
 }
 
 .member-box:hover .member-options {

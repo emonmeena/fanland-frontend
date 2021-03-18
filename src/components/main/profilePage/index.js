@@ -5,6 +5,7 @@ import Club from "../club";
 import djangoRESTAPI from "../../api/djangoRESTAPI";
 import { useAuth } from "../../auth/useAuth";
 import EditProfile from "../editProfile";
+import { Spinner } from "react-bootstrap";
 
 export default function ProfilePage() {
   const [user, setUser] = useState({});
@@ -52,7 +53,7 @@ export default function ProfilePage() {
           onHide={() => setModelShow(false)}
           userStatus={user.user_status}
         />
-        <div className="overflow-y" style={{height: "95vh"}} >
+        <div className="overflow-y" style={{ height: "95vh" }}>
           <div className="px-3 pt-3">
             <div className="top-clubpage">
               <div className="row">
@@ -81,7 +82,7 @@ export default function ProfilePage() {
                           Edit Profile
                         </button>
                         <p className="fs-primary mx-4 mt-2">
-                          <i class="far fa-gem"></i>{" "}
+                          <i className="far fa-gem"></i>{" "}
                           {user.following_clubs.length}
                         </p>
                       </div>
@@ -126,6 +127,11 @@ export default function ProfilePage() {
     case 2:
       return viewNotFound();
     default:
-      return <div>Loading...</div>;
+      return (
+        <div className="d-flex">
+          <Spinner animation="border" role="status"></Spinner>
+          <p className="fs-primary fs-medium px-3">Loading...</p>
+        </div>
+      );
   }
 }
