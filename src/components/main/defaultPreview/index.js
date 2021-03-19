@@ -5,7 +5,7 @@ import { useAuth } from "../../auth/useAuth";
 import djangoRESTAPI from "../../api/djangoRESTAPI";
 import { Spinner } from "react-bootstrap";
 
-export default function DefaultPreview({ title, endpoint, tags, descriptive}) {
+export default function DefaultPreview({ title, endpoint, tags, descriptive }) {
   let { url } = useRouteMatch();
   const auth = useAuth();
   const [data, setData] = useState([]);
@@ -85,17 +85,25 @@ export default function DefaultPreview({ title, endpoint, tags, descriptive}) {
         )}
         <div className="custom-border-top pt-3">
           <div className="clubs-container">
-            {data.map((dataItem) => {
-              return (
-                <Club
-                  key={dataItem.id}
-                  clubName={dataItem.name}
-                  clubDes={dataItem.des}
-                  clubId={dataItem.id}
-                  imageurl={dataItem.image}
-                />
-              );
-            })}
+            {data.length == 0 ? (
+              <p>
+                No fanclubs to show. You can follow a fanclub you want and It
+                will appear here. Go to explore to explore all the fanclubs on
+                Fanland.
+              </p>
+            ) : (
+              data.map((dataItem) => {
+                return (
+                  <Club
+                    key={dataItem.id}
+                    clubName={dataItem.name}
+                    clubDes={dataItem.des}
+                    clubId={dataItem.id}
+                    imageurl={dataItem.image}
+                  />
+                );
+              })
+            )}
           </div>
         </div>
       </div>

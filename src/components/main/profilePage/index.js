@@ -100,18 +100,22 @@ export default function ProfilePage() {
                   </p>
                 </div>
                 <div className="clubs-container mt-2">
-                  {userClubs.map((dataItem) => {
-                    return (
-                      <div key={dataItem.id}>
-                        <Club
-                          clubName={dataItem.name}
-                          clubDes={dataItem.des}
-                          clubId={dataItem.id}
-                          imageurl={dataItem.image}
-                        />
-                      </div>
-                    );
-                  })}
+                  {userClubs.length == 0 ? (
+                    <p>You can create your own fanclub, Awesome!! Go to New Club.</p>
+                  ) : (
+                    userClubs.map((dataItem) => {
+                      return (
+                        <div key={dataItem.id}>
+                          <Club
+                            clubName={dataItem.name}
+                            clubDes={dataItem.des}
+                            clubId={dataItem.id}
+                            imageurl={dataItem.image}
+                          />
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </div>
             </div>

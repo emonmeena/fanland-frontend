@@ -50,7 +50,7 @@ const routes = [
     main: () => (
       <DefaultPreview
         title="Recent"
-        descriptive="Reacently accessed Fanclubs"
+        descriptive="Reacently watched"
         endpoint="recent_clubs"
         tags={null}
       />

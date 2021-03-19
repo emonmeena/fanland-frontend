@@ -310,7 +310,9 @@ export default function ClubPage() {
                 </p>
               </div>
               <div className="py-2">
-                {topFans.map((fan) => {
+                {
+                topFans.length ==0?(<p>No activities in the room.</p>):(
+                topFans.map((fan) => {
                   return (
                     <div className="my-2" key={fan.user_id}>
                       <div className="d-flex">
@@ -330,7 +332,7 @@ export default function ClubPage() {
                       </div>
                     </div>
                   );
-                })}
+                }))}
               </div>
             </div>
             <div className="pt-1">
