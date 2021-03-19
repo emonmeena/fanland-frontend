@@ -167,6 +167,11 @@ export default function ClubPage() {
         setActiveState("not-active");
         setJoinState("Leave CLub");
       });
+
+      await djangoRESTAPI
+        .get(`fans/last_active/${userId}/${clubId}`)
+        .then((res) => console.log(res.data))
+        .catch((err) => console.log(err));
     }
     setisMember(!isMember);
   };

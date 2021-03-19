@@ -14,6 +14,7 @@ export default function ClubChatRoom() {
   const [chatMessages, setChatMessages] = useState([]);
   const [clubMembers, setClubMembers] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
+  const [userLastActive, setUserLastActive] = useState(null);
   const [message, setMessage] = useState("");
   const [isImageMessage, setIsImageMessage] = useState(false);
   const [isMember, setisMember] = useState(false);
@@ -21,6 +22,7 @@ export default function ClubChatRoom() {
   const [isSocketOn, setSocket] = useState(false);
   const [image, setImage] = useState(null);
   const [file, setImageFile] = useState(null);
+  const [renderFirst, setrenderFirst] = useState(true);
   const { chatRoomId } = useParams();
 
   let auth = useAuth();
@@ -31,20 +33,34 @@ export default function ClubChatRoom() {
   useEffect(() => {
     if (viewpoint === 0 && !fanclub) {
       getFanclub();
+      getUserLastActive();
     } else if (viewpoint === 1) {
       if (!isSocketOn) handleSocketConnection();
       scroll();
-      return () => {
+      return async () => {
         socket.emit("user-deactive", {
           chatRoomId: chatRoomId,
           userId: userId,
         });
+        if (isMember)
+          await djangoRESTAPI
+            .put(`fans/last_active/${userId}/${chatRoomId}/`, { test: "hello" })
+            .catch((err) => console.log(err));
       };
     }
   }, [chatRoomId, viewpoint, fanclub]);
 
   const textChange = (e) => {
     setMessage(e.target.value);
+  };
+
+  const getUserLastActive = async () => {
+    await djangoRESTAPI
+      .get(`fans/last_active/${userId}/${chatRoomId}`)
+      .then((res) => {
+        setUserLastActive(res.data);
+      })
+      .catch((err) => console.log(err));
   };
 
   const handleSocketConnection = () => {
@@ -101,6 +117,7 @@ export default function ClubChatRoom() {
         })
         .then((res) => {
           let sampleChat = {
+            isRTC: true,
             id: res.data.id,
             author_id: userId,
             chatroom_id: chatRoomId,
@@ -109,6 +126,8 @@ export default function ClubChatRoom() {
             message: message,
             media: res.data.media,
             is_image_message: isImageMessage,
+            date: res.data.date,
+            time: res.data.time,
           };
           socket.emit("chat-message", sampleChat);
           setChatMessages((data) => [...data, sampleChat]);
@@ -189,6 +208,10 @@ export default function ClubChatRoom() {
       });
       setisMember(true);
     });
+    await djangoRESTAPI
+      .get(`fans/last_active/${userId}/${chatRoomId}`)
+      .then((res) => console.log(res.data))
+      .catch((err) => console.log(err));
   };
 
   const functionsix = () => {
@@ -268,8 +291,19 @@ export default function ClubChatRoom() {
   };
 
   const ComponentChat = ({ chat }) => {
+    let seen = "";
+    if (!chat.isRTC) {
+      let chatDateTime = chat.date + chat.time;
+      let userDateTime =
+        userLastActive.last_active_date + userLastActive.last_active_time;
+      let bool = chatDateTime.localeCompare(userDateTime);
+      if (bool === 1) seen = "highlight-message";
+      setrenderFirst(false);
+    }
     return (
-      <div className={`message-box py-2 px-1 d-flex justify-content-between`}>
+      <div
+      className={`message-box py-2 px-1 d-flex justify-content-between ${seen}`}
+      >
         <div className="d-flex">
           <img
             src={chat.author_image}
