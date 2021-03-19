@@ -12,8 +12,9 @@ export default function ClubChatRoom() {
   const [viewpoint, setView] = useState(0);
   const [fanclub, setFanclub] = useState(null);
   const [chatMessages, setChatMessages] = useState([]);
-  const [clubMmebers, setClubMembers] = useState([]);
+  const [clubMembers, setClubMembers] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
+  const [userLastActive, setUserLastActive] = useState(null);
   const [message, setMessage] = useState("");
   const [isImageMessage, setIsImageMessage] = useState(false);
   const [isMember, setisMember] = useState(false);
@@ -21,6 +22,7 @@ export default function ClubChatRoom() {
   const [isSocketOn, setSocket] = useState(false);
   const [image, setImage] = useState(null);
   const [file, setImageFile] = useState(null);
+  const [renderFirst, setrenderFirst] = useState(true);
   const { chatRoomId } = useParams();
 
   let auth = useAuth();
@@ -31,14 +33,68 @@ export default function ClubChatRoom() {
   useEffect(() => {
     if (viewpoint === 0 && !fanclub) {
       getFanclub();
+      getUserLastActive();
     } else if (viewpoint === 1) {
       if (!isSocketOn) handleSocketConnection();
       scroll();
+      return async () => {
+        socket.emit("user-deactive", {
+          chatRoomId: chatRoomId,
+          userId: userId,
+        });
+        if (isMember)
+          await djangoRESTAPI
+            .put(`fans/last_active/${userId}/${chatRoomId}/`, { test: "hello" })
+            .catch((err) => console.log(err));
+      };
     }
   }, [chatRoomId, viewpoint, fanclub]);
 
   const textChange = (e) => {
     setMessage(e.target.value);
+  };
+
+  const getUserLastActive = async () => {
+    await djangoRESTAPI
+      .get(`fans/last_active/${userId}/${chatRoomId}`)
+      .then((res) => {
+        setUserLastActive(res.data);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const handleSocketConnection = () => {
+    socket.emit("user-active", {
+      userId: userId,
+      chatRoomId: chatRoomId,
+    });
+    socket.on("user-online", (activeUser) => {
+      socket.emit("existing-user", {
+        existingUserId: userId,
+        newUserSocketId: activeUser.socketId,
+      });
+      setOnlineUsers((users) => [...users, activeUser.activeUserId]);
+    });
+
+    socket.on("user-offline", (userId) => {
+      setOnlineUsers((users) => users.filter((ele) => remove(ele, userId)));
+    });
+
+    socket.on("show-existing-user", (userId) => {
+      setOnlineUsers((users) => [...users, userId]);
+    });
+
+    socket.on("receive-message", (chat) => {
+      setChatMessages((data) => [...data, chat]);
+      scroll();
+    });
+    socket.on("to-delete-chat", (chatId) => {
+      let samplechatmessages = chatMessages.filter((ele) =>
+        remove(ele.id, chatId)
+      );
+      setChatMessages(samplechatmessages);
+    });
+    setSocket(true);
   };
 
   const onFormSubmit = async (e) => {
@@ -61,13 +117,17 @@ export default function ClubChatRoom() {
         })
         .then((res) => {
           let sampleChat = {
+            isRTC: true,
+            id: res.data.id,
             author_id: userId,
-            chatRoomId: chatRoomId,
+            chatroom_id: chatRoomId,
             author_name: userName,
             author_image: userProfilePic,
             message: message,
-            media: res.data,
+            media: res.data.media,
             is_image_message: isImageMessage,
+            date: res.data.date,
+            time: res.data.time,
           };
           socket.emit("chat-message", sampleChat);
           setChatMessages((data) => [...data, sampleChat]);
@@ -93,7 +153,10 @@ export default function ClubChatRoom() {
           await djangoRESTAPI
             .get(`userdetails_basic/${userId}`)
             .then((userdetailBasic) => {
-              setClubMembers((members) => [...members, userdetailBasic.data]);
+              setClubMembers((members) => [
+                ...members,
+                { ...userdetailBasic.data, isUserOnline: false },
+              ]);
             })
             .catch((err) => console.log(err));
         });
@@ -106,24 +169,6 @@ export default function ClubChatRoom() {
         console.log(err);
         setView(2);
       });
-  };
-
-  const handleSocketConnection = () => {
-    socket.emit("user-active", {
-      userName: userName,
-      chatRoomId: chatRoomId,
-    });
-    socket.on("user-online", (activeUser) => {
-      setOnlineUsers([...onlineUsers, activeUser.userName]);
-      // to be updated
-    });
-
-    socket.on("receive-message", (chat) => {
-      // queryselector
-      setChatMessages((data) => [...data, chat]);
-      scroll();
-    });
-    setSocket(true);
   };
 
   const photoUpload = (e) => {
@@ -140,12 +185,33 @@ export default function ClubChatRoom() {
 
   const scroll = () => {
     let messageContainer = document.getElementById("message-container");
-    messageContainer.scrollTo(0, messageContainer.scrollHeight);
+    if (messageContainer)
+      messageContainer.scrollTo(0, messageContainer.scrollHeight);
   };
 
-  const joinUser = () => {
-    setisMember(true);
-    // update require
+  const joinUser = async () => {
+    await djangoRESTAPI
+      .get(`userdetails/${userId}/following_clubs`)
+      .then(async (res) => {
+        await djangoRESTAPI
+          .put(`userdetails/${userId}/`, {
+            following_clubs: [...res.data, chatRoomId],
+          })
+          .then(() => setisMember(true))
+          .catch((err) => console.log(err));
+      })
+      .catch((err) => console.log(err));
+
+    await djangoRESTAPI.get(`fanclubs/${chatRoomId}`).then(async (res) => {
+      await djangoRESTAPI.put(`fanclubs/${chatRoomId}/`, {
+        members: [...res.data.members, userId],
+      });
+      setisMember(true);
+    });
+    await djangoRESTAPI
+      .get(`fans/last_active/${userId}/${chatRoomId}`)
+      .then((res) => console.log(res.data))
+      .catch((err) => console.log(err));
   };
 
   const functionsix = () => {
@@ -153,9 +219,12 @@ export default function ClubChatRoom() {
       return (
         <form action="#" onSubmit={onFormSubmit} id="send-container">
           <div className="d-flex bg-color-secondary px-2 pt-1">
-            <button className="bg-color-secondary border-0">
+            <label
+              htmlFor="photo-upload"
+              className="bg-color-secondary border-0"
+            >
               <i className="fas fa-photo-video text-white"></i>
-            </button>
+            </label>
             <input
               id="photo-upload"
               type="file"
@@ -192,35 +261,57 @@ export default function ClubChatRoom() {
 
   const banUser = async (userId) => {
     await djangoRESTAPI.get(`fanclubs/${chatRoomId}`).then(async (res) => {
-      await djangoRESTAPI.put(`fanclubs/${res.data.id}/`, {
-        banned_users: [...res.data.banned_users, userId],
-      });
+      await djangoRESTAPI
+        .put(`fanclubs/${res.data.id}/`, {
+          banned_users: [...res.data.banned_users, userId],
+        })
+        .then(() => {
+          let sampleMembers = clubMembers.filter((ele) =>
+            remove(ele.user_id, userId)
+          );
+          setClubMembers(sampleMembers);
+        });
     });
+  };
+  const remove = (ele, value) => {
+    return ele != value;
   };
 
   const deleteChat = async (chatId) => {
     await djangoRESTAPI
       .delete(`chat/${chatId}`)
       .then(() => {
-        let chatComponent = document.getElementById(chatId);
-        chatComponent.classList.add("d-none");
+        let samplechatmessages = chatMessages.filter((ele) =>
+          remove(ele.id, chatId)
+        );
+        setChatMessages(samplechatmessages);
+        socket.emit("chat-delete", { chatroomId: chatRoomId, chatId: chatId });
       })
       .catch((err) => console.log(err));
   };
 
   const ComponentChat = ({ chat }) => {
+    let seen = "";
+    if (!chat.isRTC) {
+      let chatDateTime = chat.date + chat.time;
+      let userDateTime =
+        userLastActive.last_active_date + userLastActive.last_active_time;
+      let bool = chatDateTime.localeCompare(userDateTime);
+      if (bool === 1) seen = "highlight-message";
+      setrenderFirst(false);
+    }
     return (
       <div
-        id={chat.id}
-        className={`message-box py-2 px-1 d-flex justify-content-between`}
+      className={`message-box py-2 px-1 d-flex justify-content-between ${seen}`}
       >
         <div className="d-flex">
           <img
             src={chat.author_image}
             alt="Profile"
             height="46"
+            width="46"
             style={{ borderRadius: "50%" }}
-            className="mx-1"
+            className="rounded-cicle mx-1"
           />
           <p className="fs-smaller px-3">
             <Link
@@ -250,7 +341,7 @@ export default function ClubChatRoom() {
             {chat.message ? chat.message : ""}
           </p>
         </div>
-        {chat.author_id === userId || isAdmin ? (
+        {chat.author_id == userId || isAdmin ? (
           <div className="pt-2 chat-option px-4">
             <Dropdown>
               <Dropdown.Toggle
@@ -268,12 +359,12 @@ export default function ClubChatRoom() {
                 >
                   Delete Post
                 </Dropdown.Item>
-                {isAdmin && userId != fanclub.creator ? (
+                {isAdmin ? (
                   <Dropdown.Item
                     onClick={() => banUser(userId)}
                     className="fs-secondary"
                   >
-                    Ban {chat.author}
+                    Ban {chat.author_name}
                   </Dropdown.Item>
                 ) : (
                   <div></div>
@@ -341,7 +432,9 @@ export default function ClubChatRoom() {
               <p className="fs-small py-1">Members</p>
             </div>
             <div className="pt-3 participants-container overflow-auto">
-              {clubMmebers.map((item) => {
+              {clubMembers.map((item) => {
+                item.isUserOnline = onlineUsers.includes(item.user_id);
+                if (item.user_id === userId) return "";
                 return (
                   <div className="d-flex py-2 member-box" key={item.user_id}>
                     <div>
@@ -349,9 +442,15 @@ export default function ClubChatRoom() {
                         src={item.user_profile_image}
                         alt="Profile"
                         height="30"
+                        width="30"
+                        className="rounded-circle"
                         style={{ borderRadius: "50%" }}
                       />
-                      <span className="dot dot-active"></span>
+                      {item.isUserOnline ? (
+                        <span className="dot dot-active"></span>
+                      ) : (
+                        <span className="dot dot-not-active"></span>
+                      )}
                     </div>
                     <div>
                       <p className="fs-smaller px-2 pt-1">
@@ -364,7 +463,7 @@ export default function ClubChatRoom() {
                         <span className="fs-smallest px-2"> 1 hour</span>
                       </p>
                     </div>
-                    {isAdmin && userId != item.user_id ? (
+                    {isAdmin ? (
                       <div className="pt-1 member-options">
                         <i className="fas fa-user-plus"></i>
                         <button
@@ -394,7 +493,7 @@ export default function ClubChatRoom() {
       return <div>Something went wrong, please try after some time.</div>;
     default:
       return (
-        <div>
+        <div className="d-flex">
           <Spinner animation="border" role="status"></Spinner>
           <p className="fs-primary fs-medium px-3">Loading...</p>
         </div>

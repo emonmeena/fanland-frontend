@@ -15,13 +15,19 @@ import CreateFanClub from "./createFanClub";
 import DefaultPreview from "./defaultPreview";
 import ProfilePage from "./profilePage";
 import { useAuth } from "../auth/useAuth";
+import { Dropdown } from "react-bootstrap";
 
 const routes = [
   {
     path: "",
     exact: true,
     main: () => (
-      <DefaultPreview title="Home" endpoint="following_clubs" tags={null} />
+      <DefaultPreview
+        title="Home"
+        descriptive="Followed by You"
+        endpoint="following_clubs"
+        tags={null}
+      />
     ),
   },
   {
@@ -29,10 +35,12 @@ const routes = [
     main: () => (
       <DefaultPreview
         title="Explore"
+        descriptive={null}
         endpoint=""
         tags={[
-          { tagTitle: "All", tagId: "" },
-          // { tagTitle: "Suggested", tagId: "suggested" },
+          { tagTitle: "Fanclubs", tagId: "" },
+          { tagTitle: "Fans", tagId: "fans" },
+          { tagTitle: "Suggested", tagId: "suggested" },
         ]}
       />
     ),
@@ -40,7 +48,12 @@ const routes = [
   {
     path: "/recent",
     main: () => (
-      <DefaultPreview title="Recent" endpoint="recent_clubs" tags={null} />
+      <DefaultPreview
+        title="Recent"
+        descriptive="Reacently accessed Fanclubs"
+        endpoint="recent_clubs"
+        tags={null}
+      />
     ),
   },
   {
@@ -48,6 +61,7 @@ const routes = [
     main: (name) => (
       <DefaultPreview
         title={`Made by ${name}`}
+        descriptive="Your admin Fanclubs"
         endpoint="admin_clubs"
         tags={null}
       />
@@ -56,7 +70,12 @@ const routes = [
   {
     path: "/liked",
     main: () => (
-      <DefaultPreview title="Liked Clubs" endpoint="liked_clubs" tags={null} />
+      <DefaultPreview
+        title="Liked Clubs"
+        descriptive="Fanclubs you like the most"
+        endpoint="liked_clubs"
+        tags={null}
+      />
     ),
   },
   {
@@ -209,15 +228,45 @@ export default function Main() {
                     src={auth.user.user_profile_image}
                     alt="Profile"
                     height="30"
+                    width="30"
+                    className="profile-border rounded-circle mx-2"
                     style={{ borderRadius: "50%" }}
-                    className="mx-2"
                   />
                   <Link to={`/app/users/${auth.user.id}`} className="link-2">
                     <p className="pt-1 px-1">{auth.user.user_name}</p>
                   </Link>
-                  <button className="pt-1 px-2 bg-color-primary border-0">
-                    <i className="fas fa-chevron-down icon-style-2"></i>
-                  </button>
+
+                  <div className="pt-1">
+                    <Dropdown>
+                      <Dropdown.Toggle
+                        bsPrefix="bg-color-primary text-white px-1"
+                        as="button"
+                        id="dropdown-basic"
+                      >
+                        <i className="fas fs-secondary fa-chevron-down icon-style-2"></i>
+                      </Dropdown.Toggle>
+
+                      <Dropdown.Menu bsPrefix="bg-color-tertiary">
+                        <Dropdown.Item>
+                          <Link
+                            to={`/app/users/${auth.user.id}`}
+                            className="text-decoration-none"
+                          >
+                            <p className="fs-secondary pt-1 px-1">Edit</p>
+                          </Link>
+                        </Dropdown.Item>
+                        {/* <Dropdown.Item href="#" className="fs-secondary">
+                          Settings
+                        </Dropdown.Item> */}
+                        <Dropdown.Item
+                          onClick={logout}
+                          className="fs-secondary"
+                        >
+                          Logout
+                        </Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
+                  </div>
                 </div>
                 {/* incomplete */}
               </div>

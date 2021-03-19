@@ -3,7 +3,7 @@ import { Link, useHistory, useLocation, useParams } from "react-router-dom";
 import Club from "../club";
 import PageNotFound from "../pageNotFound";
 import { useAuth } from "../../auth/useAuth";
-import { Dropdown } from "react-bootstrap";
+import { Dropdown, Spinner } from "react-bootstrap";
 import djangoRESTAPI from "../../api/djangoRESTAPI";
 import EditFanclub from "../editFanclub";
 
@@ -50,7 +50,7 @@ export default function ClubPage() {
             setisLiked(likedClubs.data.includes(res.data.id));
           });
         setIsAdmin(res.data.admin_members.includes(userId));
-        fetchTopFans(res.data.top_fans);
+        fetchTopFans();
         fetchMoreClubs(res.data.creator);
         if (res.data.members.includes(userId)) {
           setisMember(true);
@@ -65,12 +65,21 @@ export default function ClubPage() {
         setView(2);
       });
   };
-  const fetchTopFans = (topFanIds) => {
-    topFanIds.map(async (fanId) => {
-      await djangoRESTAPI.get(`userdetails_basic/${fanId}`).then((res) => {
-        setTopFans((data) => [...data, res.data]);
+  const fetchTopFans = async () => {
+    await djangoRESTAPI.get(`fans/${clubId}`).then((res) => {
+      res.data.map(async (fanObject) => {
+        await djangoRESTAPI
+          .get(`userdetails_basic/${fanObject.fan_id}`)
+          .then((res) => {
+            setTopFans((data) => [...data, res.data]);
+          });
       });
     });
+    // topFanIds.map(async (fanId) => {
+    //   await djangoRESTAPI.get(`userdetails_basic/${fanId}`).then((res) => {
+    //     setTopFans((data) => [...data, res.data]);
+    //   });
+    // });
   };
   const fetchMoreClubs = async (creator) => {
     await djangoRESTAPI
@@ -158,6 +167,11 @@ export default function ClubPage() {
         setActiveState("not-active");
         setJoinState("Leave CLub");
       });
+
+      await djangoRESTAPI
+        .get(`fans/last_active/${userId}/${clubId}`)
+        .then((res) => console.log(res.data))
+        .catch((err) => console.log(err));
     }
     setisMember(!isMember);
   };
@@ -228,7 +242,7 @@ export default function ClubPage() {
                         {joinState}
                       </button>
                     )}
-                    <div className="d-flex mx-3">
+                    <div className="d-flex mx-">
                       <button
                         className="border-0 bg-color-primary fs-primary text-white scale"
                         onClick={handleLikeClub}
@@ -296,7 +310,7 @@ export default function ClubPage() {
                 </p>
               </div>
               <div className="py-2">
-                {topFans.slice(0, 5).map((fan) => {
+                {topFans.map((fan) => {
                   return (
                     <div className="my-2" key={fan.user_id}>
                       <div className="d-flex">
@@ -304,6 +318,8 @@ export default function ClubPage() {
                           src={`${fan.user_profile_image}`}
                           alt="Profile"
                           height="30"
+                          width="30"
+                          className="rounded-circle"
                         />
                         <Link
                           to={`/app/users/${fan.user_id}`}
@@ -317,7 +333,7 @@ export default function ClubPage() {
                 })}
               </div>
             </div>
-            <div className="pt-4">
+            <div className="pt-1">
               <div className="d-flex justify-content-between custom-border-bottom py-2">
                 <p className="fs-secondary">
                   Fanclubs by <span className="text-white"> {creator} </span>
@@ -360,6 +376,11 @@ export default function ClubPage() {
       return viewNotFound();
 
     default:
-      return <div>Loading...</div>;
+      return (
+        <div className="d-flex">
+          <Spinner animation="border" role="status"></Spinner>
+          <p className="fs-primary fs-medium px-3">Loading...</p>
+        </div>
+      );
   }
 }
