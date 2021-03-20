@@ -90,7 +90,7 @@ npm install
 ```
 nodemon index.js
 ```
->> # Note: if your port crashes try to setup the frontend first and then run the socket server.
+> # Note: if your port crashes try to setup the frontend first and then run the socket server.
 > Done!
  
 ## Setting up the frontend
