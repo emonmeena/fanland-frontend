@@ -35,6 +35,7 @@ export default function EditProfile(props) {
         let { from } = location.state || {
           from: { pathname: `/app/users/${auth.user.id}` },
         };
+        auth.updateUserProfile();
         history.replace(from);
         props.onHide();
       })

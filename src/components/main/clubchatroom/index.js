@@ -5,6 +5,7 @@ import { Spinner, Dropdown } from "react-bootstrap";
 import "./index.css";
 import { useAuth } from "../../auth/useAuth";
 import djangoRESTAPI from "../../api/djangoRESTAPI";
+import Popup from "../Popup";
 
 const socket = io.connect("http://localhost:4000");
 
@@ -17,8 +18,10 @@ export default function ClubChatRoom() {
   const [userLastActive, setUserLastActive] = useState(null);
   const [message, setMessage] = useState("");
   const [isImageMessage, setIsImageMessage] = useState(false);
+  const [isBannedUser, setIsBannedUser] = useState(false);
   const [isMember, setisMember] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [popup, setPopup] = useState(false);
   const [isSocketOn, setSocket] = useState(false);
   const [image, setImage] = useState(null);
   const [file, setImageFile] = useState(null);
@@ -30,6 +33,7 @@ export default function ClubChatRoom() {
   let userProfilePic = auth.user.user_profile_image;
 
   useEffect(() => {
+    if (isBannedUser) setView(-1);
     if (viewpoint === 0 && !fanclub) {
       getFanclub();
       getUserLastActive();
@@ -77,6 +81,16 @@ export default function ClubChatRoom() {
 
     socket.on("user-offline", (userId) => {
       setOnlineUsers((users) => users.filter((ele) => remove(ele, userId)));
+    });
+
+    socket.on("ban-user", (userid) => {
+      if (userid === userId) setView(-1);
+    });
+    socket.on("admin-popup", (userid) => {
+      if (userid === userId) {
+        setIsAdmin(true);
+        setPopup(true);
+      }
     });
 
     socket.on("show-existing-user", (userId) => {
@@ -168,6 +182,7 @@ export default function ClubChatRoom() {
         });
         setFanclub(res.data);
         setIsAdmin(res.data.admin_members.includes(userId));
+        setIsBannedUser(res.data.banned_users.includes(userId));
         setisMember(res.data.members.includes(userId));
         setView(1);
       })
@@ -267,9 +282,7 @@ export default function ClubChatRoom() {
 
   const banUser = async (userid, username) => {
     await djangoRESTAPI.get(`fanclubs/${chatRoomId}`).then(async (res) => {
-      let sampleMembers = res.data.members.filter((ele) =>
-        remove(ele, userid)
-      );
+      let sampleMembers = res.data.members.filter((ele) => remove(ele, userid));
       await djangoRESTAPI
         .put(`fanclubs/${res.data.id}/`, {
           banned_users: [...res.data.banned_users, userid],
@@ -281,6 +294,7 @@ export default function ClubChatRoom() {
           );
           setClubMembers(sampleMembers);
           sendMessage(username, "is banned from the chatroom.");
+          socket.emit("user-ban", { id: userid, room: chatRoomId });
         });
     });
   };
@@ -293,6 +307,7 @@ export default function ClubChatRoom() {
         })
         .then(() => {
           sendMessage(username, "is now an Admin.");
+          socket.emit("make-admin", { id: userid, room: chatRoomId });
         })
         .catch((err) => console.log(err));
     });
@@ -415,127 +430,139 @@ export default function ClubChatRoom() {
 
   const viewMain = () => {
     return (
-      <div>
-        <div className="row">
-          <div className="col-10">
-            <div className="bg-color-tertiary p-2 mx-2 mt-3">
-              <Link to={`/app/clubs/${chatRoomId}`} className="link-2">
-                {fanclub.name}
-              </Link>
-            </div>
-            <div
-              className="custom-overflow py-2 chat-box bg-color-primary mx-2"
-              id="message-container"
-            >
-              {chatMessages.length == 0 ? (
-                <p>Start a post or just say hii to initiate a conversation!!</p>
-              ) : (
-                chatMessages.map((chat) => {
-                  return <ComponentChat key={chat.id} chat={chat} />;
-                })
-              )}
-            </div>
-            {isImageMessage ? (
-              <div
-                className="mx-2 position-absolute p-2 bg-color-tertiary"
-                style={{ bottom: 60 }}
-              >
-                <div className="d-flex justify-content-between">
-                  <p className="fw-bold">Image Preview</p>
-                  <button
-                    className="bg-color-tertiary text-white"
-                    onClick={() => {
-                      setIsImageMessage(false);
-                      setImageFile(null);
-                    }}
-                  >
-                    <i className="fa fa-times"></i>
-                  </button>
-                </div>
-                <img
-                  className="my-2"
-                  style={{ maxHeight: "300px" }}
-                  src={image}
-                />
-                <p className="fs-small fs-secondary">
-                  Press enter to upload the selected image to the fanland
-                  server.
-                </p>
+      <>
+        <Popup
+          show={popup}
+          onHide={() => setPopup(false)}
+          message="You are now an Admin of this fanclub!"
+        />
+        <div>
+          <div className="row">
+            <div className="col-10">
+              <div className="bg-color-tertiary p-2 mx-2 mt-3">
+                <Link to={`/app/clubs/${chatRoomId}`} className="link-2">
+                  {fanclub.name}
+                </Link>
               </div>
-            ) : (
-              <p></p>
-            )}
-            <div className="m-2">{functionsix()}</div>
-          </div>
-          <div className=" col-2 bg-color-secondary border-right custom-border-right mt-3  pt-2 px-4">
-            <div className="custom-border-bottom">
-              <p className="fs-small py-1">Members</p>
-            </div>
-            <div className="pt-3 participants-container overflow-auto">
-              {clubMembers.length == 0 ? (
-                <p>Invite people to make some noice in the room.</p>
+              <div
+                className="custom-overflow py-2 chat-box bg-color-primary mx-2"
+                id="message-container"
+              >
+                {chatMessages.length == 0 ? (
+                  <p>
+                    Start a post or just say hii to initiate a conversation!!
+                  </p>
+                ) : (
+                  chatMessages.map((chat) => {
+                    return <ComponentChat key={chat.id} chat={chat} />;
+                  })
+                )}
+              </div>
+              {isImageMessage ? (
+                <div
+                  className="mx-2 position-absolute p-2 bg-color-tertiary"
+                  style={{ bottom: 60 }}
+                >
+                  <div className="d-flex justify-content-between">
+                    <p className="fw-bold">Image Preview</p>
+                    <button
+                      className="bg-color-tertiary text-white"
+                      onClick={() => {
+                        setIsImageMessage(false);
+                        setImageFile(null);
+                      }}
+                    >
+                      <i className="fa fa-times"></i>
+                    </button>
+                  </div>
+                  <img
+                    className="my-2"
+                    style={{ maxHeight: "300px" }}
+                    src={image}
+                  />
+                  <p className="fs-small fs-secondary">
+                    Press enter to upload the selected image to the fanland
+                    server.
+                  </p>
+                </div>
               ) : (
-                clubMembers.map((item) => {
-                  item.isUserOnline = onlineUsers.includes(item.user_id);
-                  if (item.user_id === userId) return "";
-                  return (
-                    <div className="d-flex py-2 member-box" key={item.user_id}>
-                      <div>
-                        <img
-                          src={item.user_profile_image}
-                          alt="Profile"
-                          height="30"
-                          width="30"
-                          className="rounded-circle"
-                          style={{ borderRadius: "50%" }}
-                        />
-                        {item.isUserOnline ? (
-                          <span className="dot dot-active"></span>
+                <p></p>
+              )}
+              <div className="m-2">{functionsix()}</div>
+            </div>
+            <div className=" col-2 bg-color-secondary border-right custom-border-right mt-3  pt-2 px-4">
+              <div className="custom-border-bottom">
+                <p className="fs-small py-1">Members</p>
+              </div>
+              <div className="pt-3 participants-container overflow-auto">
+                {clubMembers.length == 0 ? (
+                  <p>Invite people to make some noice in the room.</p>
+                ) : (
+                  clubMembers.map((item) => {
+                    item.isUserOnline = onlineUsers.includes(item.user_id);
+                    if (item.user_id === userId) return "";
+                    return (
+                      <div
+                        className="d-flex py-2 member-box"
+                        key={item.user_id}
+                      >
+                        <div>
+                          <img
+                            src={item.user_profile_image}
+                            alt="Profile"
+                            height="30"
+                            width="30"
+                            className="rounded-circle"
+                            style={{ borderRadius: "50%" }}
+                          />
+                          {item.isUserOnline ? (
+                            <span className="dot dot-active"></span>
+                          ) : (
+                            <span className="dot dot-not-active"></span>
+                          )}
+                        </div>
+                        <div>
+                          <p className="fs-smaller px-2 pt-1">
+                            <Link
+                              to={`/app/users/${item.user_id}`}
+                              className="link link-hover-underline text-white"
+                            >
+                              {item.user_name}
+                            </Link>
+                            {/* <span className="fs-smallest px-2"> 1 hour</span> */}
+                          </p>
+                        </div>
+                        {isAdmin ? (
+                          <div className="pt-1 member-options">
+                            <button
+                              className="bg-color-secondary"
+                              onClick={() =>
+                                makeAdmin(item.user_id, item.user_name)
+                              }
+                            >
+                              <i className="fas fa-user-plus text-white"></i>
+                            </button>
+                            <button
+                              className="bg-color-secondary text-white"
+                              onClick={() =>
+                                banUser(item.user_id, item.user_name)
+                              }
+                            >
+                              <i className="fas fa-ban px-lg-2 fs-secondary "></i>
+                            </button>
+                          </div>
                         ) : (
-                          <span className="dot dot-not-active"></span>
+                          <div></div>
                         )}
                       </div>
-                      <div>
-                        <p className="fs-smaller px-2 pt-1">
-                          <Link
-                            to={`/app/users/${item.user_id}`}
-                            className="link link-hover-underline text-white"
-                          >
-                            {item.user_name}
-                          </Link>
-                          {/* <span className="fs-smallest px-2"> 1 hour</span> */}
-                        </p>
-                      </div>
-                      {isAdmin ? (
-                        <div className="pt-1 member-options">
-                          <button
-                            className="bg-color-secondary"
-                            onClick={() =>
-                              makeAdmin(item.user_id, item.user_name)
-                            }
-                          >
-                            <i className="fas fa-user-plus text-white"></i>
-                          </button>
-                          <button
-                            className="bg-color-secondary text-white"
-                            onClick={() =>
-                              banUser(item.user_id, item.user_name)
-                            }
-                          >
-                            <i className="fas fa-ban px-lg-2 fs-secondary "></i>
-                          </button>
-                        </div>
-                      ) : (
-                        <div></div>
-                      )}
-                    </div>
-                  );
-                })
-              )}
+                    );
+                  })
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </>
     );
   };
 
@@ -544,6 +571,8 @@ export default function ClubChatRoom() {
       return viewMain();
     case 2:
       return <div>Something went wrong, please try after some time.</div>;
+    case -1:
+      return <p>You are banned from the server.</p>;
     default:
       return (
         <div className="d-flex">
