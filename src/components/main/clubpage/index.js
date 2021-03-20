@@ -18,6 +18,7 @@ export default function ClubPage() {
   const [activeState, setActiveState] = useState("active");
   const [isLiked, setisLiked] = useState(false);
   const [isMember, setisMember] = useState(false);
+  const [isBanned, setIsBanned] = useState(false);
   const [isCreator, setIsCreator] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [creator, setCreator] = useState(null);
@@ -28,7 +29,6 @@ export default function ClubPage() {
   let location = useLocation();
   let auth = useAuth();
   let userId = auth.user.id;
-  let userName = auth.user.user_name;
 
   const fetchClub = async () => {
     await djangoRESTAPI
@@ -36,6 +36,7 @@ export default function ClubPage() {
       .then(async (res) => {
         setFanclub(res.data);
         setIsCreator(() => userId === res.data.creator);
+        setIsBanned(res.data.banned_users.includes(userId));
         await djangoRESTAPI
           .get(`userdetails/${userId}/following_clubs`)
           .then((followingData) => setFollowingClubs(followingData.data));
@@ -258,7 +259,7 @@ export default function ClubPage() {
                           <i className="fas fa-comments"></i>
                         </button>
                       </Link>
-                      {isAdmin ? (
+                      {isAdmin && !isBanned ? (
                         <div className="pt-2">
                           <Dropdown>
                             <Dropdown.Toggle
@@ -310,29 +311,31 @@ export default function ClubPage() {
                 </p>
               </div>
               <div className="py-2">
-                {
-                topFans.length ==0?(<p>No activities in the room.</p>):(
-                topFans.map((fan) => {
-                  return (
-                    <div className="my-2" key={fan.user_id}>
-                      <div className="d-flex">
-                        <img
-                          src={`${fan.user_profile_image}`}
-                          alt="Profile"
-                          height="30"
-                          width="30"
-                          className="rounded-circle"
-                        />
-                        <Link
-                          to={`/app/users/${fan.user_id}`}
-                          className="link-2 mx-2"
-                        >
-                          <p className="pt-1 px-1">{fan.user_name}</p>
-                        </Link>
+                {topFans.length == 0 ? (
+                  <p>No activities in the room.</p>
+                ) : (
+                  topFans.map((fan) => {
+                    return (
+                      <div className="my-2" key={fan.user_id}>
+                        <div className="d-flex">
+                          <img
+                            src={`${fan.user_profile_image}`}
+                            alt="Profile"
+                            height="30"
+                            width="30"
+                            className="rounded-circle"
+                          />
+                          <Link
+                            to={`/app/users/${fan.user_id}`}
+                            className="link-2 mx-2"
+                          >
+                            <p className="pt-1 px-1">{fan.user_name}</p>
+                          </Link>
+                        </div>
                       </div>
-                    </div>
-                  );
-                }))}
+                    );
+                  })
+                )}
               </div>
             </div>
             <div className="pt-1">
