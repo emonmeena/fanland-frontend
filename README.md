@@ -47,9 +47,10 @@ ALTER ROLE firstpsqluser SET timezone TO 'Asia/Kolkata';
 ```
 - Now, we can give our new user access to administer our new database:
 ```
-GRANT ALL PRIVILEGES ON DATABASE myproject TO myprojectuser;
+GRANT ALL PRIVILEGES ON DATABASE myfirstpsqlproject TO firstpsqluser;
 exit
 ```
+- Note:  give the Databse name and user name accodingly.
 
 4. Setting up the API
 - Clone the [fanland-server](https://github.com/maayami/fanland-server).
