@@ -1,3 +1,4 @@
+
 # Setup Instructions
 Below are the instructions to run this project on your local machines.
 If you face any problem or encounter any issue, please let me know via [Mail](mailto:mayank_m@cs.iitr.ac.in)
@@ -110,3 +111,16 @@ npm install
 - run the server `npm start`
 - visit [port:3000](http://localhost:3000/) on your browser.
 > Done!
+
+## The Fanland
+![Screenshot from 2021-03-20 18-55-54](https://user-images.githubusercontent.com/55585868/111871132-a5912600-89ae-11eb-9b7f-70ef4dd6396d.png)
+![Screenshot from 2021-03-20 18-59-48](https://user-images.githubusercontent.com/55585868/111871134-a7f38000-89ae-11eb-8126-787552b6799a.png)
+![Screenshot from 2021-03-20 19-00-09](https://user-images.githubusercontent.com/55585868/111871137-a9bd4380-89ae-11eb-8b5e-671590a073f6.png)
+![Screenshot from 2021-03-20 19-00-15](https://user-images.githubusercontent.com/55585868/111871139-ac1f9d80-89ae-11eb-9218-8f9320bb421a.png)
+![Screenshot from 2021-03-20 18-52-46](https://user-images.githubusercontent.com/55585868/111871241-df622c80-89ae-11eb-92fe-dd5f52731cab.png)
+![Screenshot from 2021-03-20 18-53-08](https://user-images.githubusercontent.com/55585868/111871243-e1c48680-89ae-11eb-8826-b2ea40beb1f0.png)
+![Screenshot from 2021-03-20 18-51-43](https://user-images.githubusercontent.com/55585868/111871247-e8eb9480-89ae-11eb-9c99-361919f34dbe.png)
+![Screenshot from 2021-03-20 18-51-51](https://user-images.githubusercontent.com/55585868/111871250-ed17b200-89ae-11eb-8f2f-3107a3bf5ac9.png)
+![Screenshot from 2021-03-20 18-52-02](https://user-images.githubusercontent.com/55585868/111871251-eee17580-89ae-11eb-8ad4-9f209d621758.png)
+![Screenshot from 2021-03-20 18-52-06](https://user-images.githubusercontent.com/55585868/111871252-ef7a0c00-89ae-11eb-8f57-36e483d46cd1.png)
+![Screenshot from 2021-03-20 18-52-15](https://user-images.githubusercontent.com/55585868/111871254-f0ab3900-89ae-11eb-9be7-a2fd1e18d993.png)
