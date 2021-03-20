@@ -16,12 +16,12 @@ export default function EditFanclub(props) {
   let history = useHistory();
   let location = useLocation();
 
-  const resetStates = () => {
-    setTitle("");
-    setDes("");
-    setImage(null);
-    setImageFile(null);
-  };
+  // const resetStates = () => {
+  //   setTitle("");
+  //   setDes("");
+  //   setImage(null);
+  //   setImageFile(null);
+  // };
 
   const editClub = async (e) => {
     e.preventDefault();
@@ -32,7 +32,7 @@ export default function EditFanclub(props) {
     form_data.append("des", clubDes);
     if (imageFile) form_data.append("image", imageFile);
     await djangoRESTAPI
-      .put(`fanclubs/${props.clubData.id}/`, form_data, {
+      .put(`modify_fanclub/${props.clubData.id}/`, form_data, {
         headers: {
           "content-type": "multipart/form-data",
         },

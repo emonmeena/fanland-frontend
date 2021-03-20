@@ -31,6 +31,14 @@ function useProvideAuth() {
       .catch(() => showError());
   };
 
+  const updateUserProfile = async () => {
+    await djangoRESTAPI
+      .get(`userdetails/${user.id}/user_profile_image`)
+      .then((imageData) =>
+        setUser((user) => ({ ...user, user_profile_image: imageData.data }))
+      );
+  };
+
   const signup = async (user, userdetail, callback, showError) => {
     await djangoRESTAPI
       .post("/users/", user)
@@ -59,5 +67,7 @@ function useProvideAuth() {
     signup,
 
     signout,
+
+    updateUserProfile,
   };
 }
