@@ -233,15 +233,15 @@ export default function ClubPage() {
                     </p>
                   </div>
                   <div className="pt-3 d-flex">
-                    {isCreator ? (
-                      ""
-                    ) : (
+                    {!isCreator && !isBanned ? (
                       <button
-                        onClick={handleJoinButtonClick}
-                        className={`btn rounded-pill p-2 px-3 ${activeState}`}
+                      onClick={handleJoinButtonClick}
+                      className={`btn rounded-pill p-2 px-3 ${activeState}`}
                       >
                         {joinState}
                       </button>
+                        ) : (
+                          ""
                     )}
                     <div className="d-flex mx-">
                       <button
