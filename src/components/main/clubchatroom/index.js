@@ -398,7 +398,7 @@ export default function ClubChatRoom() {
                 >
                   Delete Post
                 </Dropdown.Item>
-                {isAdmin ? (
+                {isAdmin && chat.author_id !=userId? (
                   <div>
                     <Dropdown.Item
                       onClick={() => banUser(chat.author_id, chat.author_name)}
