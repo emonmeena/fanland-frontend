@@ -94,7 +94,7 @@ nodemon index.js
 > Done!
  
 ## Setting up the frontend
-Fanland frontend is built in React frontend
+Fanland frontend is built in React
 1. Prerequisites
 - node and npm
 2. Setup Instructions
