@@ -16,6 +16,7 @@ import DefaultPreview from "./defaultPreview";
 import ProfilePage from "./profilePage";
 import { useAuth } from "../auth/useAuth";
 import { Dropdown } from "react-bootstrap";
+import djangoRESTAPI from "../api/djangoRESTAPI";
 
 const routes = [
   {
@@ -97,13 +98,32 @@ export default function Main() {
   const auth = useAuth();
   let { path, url } = useRouteMatch();
   const [modalShow, setModalShow] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchResult, setResult] = useState([]);
+  const [error, setError] = useState(false);
+  const [error2, setError2] = useState(false);
   const history = useHistory();
-  const editProfile = () => {
-    console.log("editProfile()");
-  };
 
   const logout = () => {
     auth.signout();
+  };
+
+  const searchFunction = async (query) => {
+    setShowSearch(true);
+    await djangoRESTAPI
+      .get(`users/${query}`)
+      .then((res) => {
+        setResult((oldArray) => [...oldArray, { ...res.data, type: 0 }]);
+        setError(false);
+      })
+      .catch(() => setError(true));
+    await djangoRESTAPI
+      .get(`fanclubs/${query}`)
+      .then((res) => {
+        setResult((oldArray) => [...oldArray, { ...res.data, type: 1 }]);
+        setError(false);
+      })
+      .catch(() => setError2(true));
   };
 
   return (
@@ -201,26 +221,75 @@ export default function Main() {
                       <i className="fas fa-chevron-right icon-style-2 nav-btn-hover"></i>
                     </button>
                   </div>
-                  <div className="mx-4">
-                    <button
-                      className="border-0 fs-small mt-1 btn-hover-stop"
-                      style={{
-                        borderTopLeftRadius: "10px",
-                        borderBottomLeftRadius: "10px",
-                      }}
-                    >
-                      <i className="fas fa-search"></i>
-                    </button>
-                    <input
-                      type="text"
-                      className="search-box border-0"
-                      placeholder="search"
-                      style={{
-                        fontSize: "14px",
-                        borderTopRightRadius: "10px",
-                        borderBottomRightRadius: "10px",
-                      }}
-                    ></input>
+                  <div className="d-flex flex-column">
+                    <div className="mx-4">
+                      <button
+                        className="border-0 fs-small mt-1 btn-hover-stop"
+                        style={{
+                          borderTopLeftRadius: "10px",
+                          borderBottomLeftRadius: "10px",
+                        }}
+                      >
+                        <i className="fas fa-search"></i>
+                      </button>
+                      <input
+                        type="text"
+                        className="search-box border-0"
+                        onChange={(e) => searchFunction(e.target.value)}
+                        placeholder="search"
+                        style={{
+                          fontSize: "14px",
+                          borderTopRightRadius: "10px",
+                          borderBottomRightRadius: "10px",
+                        }}
+                      ></input>
+                    </div>
+                    {showSearch ? (
+                      <span
+                        style={{ top: "45px", left: "247px", width: "220px" }}
+                        className=" position-absolute bg-color-secondary p-2 fs-secondary text-white rounded"
+                      >
+                        <div className="custom-border-bottom d-flex justify-content-between">
+                          <p>Search results...</p>
+                          <button
+                            className="bg-color-secondary text-white"
+                            onClick={() => {
+                              setShowSearch(false);
+                              setResult([]);
+                            }}
+                          >
+                            <i className="fas fa-times"></i>
+                          </button>
+                        </div>
+                        <div className="pt-1">
+                          {!error || !error2
+                            ? searchResult.map((result) => {
+                                return (
+                                  <div className="custom-border-bottom">
+                                    {result.type == 0 ? (
+                                      <Link
+                                        className="text-white"
+                                        to={`/app/users/${result.id}`}
+                                      >
+                                        {result.user_name}
+                                      </Link>
+                                    ) : (
+                                      <Link
+                                        className="text-white"
+                                        to={`/app/clubs/${result.id}`}
+                                      >
+                                        {result.name}
+                                      </Link>
+                                    )}
+                                  </div>
+                                );
+                              })
+                            : "No match found"}
+                        </div>
+                      </span>
+                    ) : (
+                      ""
+                    )}
                   </div>
                 </div>
                 <div className="d-flex px-3">
