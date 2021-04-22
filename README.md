@@ -1,8 +1,12 @@
 ## Implementation of Fanland
 Project Fanland is a piece of work to showcase my full-stack development skills. The project's tech stack includes a React.js frontend, a back-end server in Django, and a socket.io server to support the RTC inside the app. The user's data is stored in a Postgres database.
 
-Fanland is a dynamic SPWA with multiple features improvising the UX.
+Fanland is a dynamic SPA with multiple features improvising the UX.
 The beautiful UI dark theme is used to achieve the attraction of the user. The back-end uses Django's built-in packages, including **django-rest-framework** and **django-cors** to make a **REST-ful API**. I have used **SQLAlchemy and django-rest-serializers** to interface the database with python classes.
+
+### linked repositories
+- Backend API - [Github](https://github.com/maayami/fanland-server)
+- Socket server - [Github](https://github.com/maayami/fanland-socket-server)
 
 ### Features
 - Fanland is a web aaplication where a user can join fanclubs of their choice. Anyone can create a fanclub and friends can search for it.
