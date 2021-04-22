@@ -1,3 +1,22 @@
+## Implementation of Fanland
+Project Fanland is a piece of work to showcase my full-stack development skills. The project's tech stack includes a React.js frontend, a back-end server in Django, and a socket.io server to support the RTC inside the app. The user's data is stored in a Postgres database.
+
+Fanland is a dynamic SPWA with multiple features improvising the UX.
+The beautiful UI dark theme is used to achieve the attraction of the user. The back-end uses Django's built-in packages, including **django-rest-framework** and **django-cors** to make a **REST-ful API**. I have used **SQLAlchemy and django-rest-serializers** to interface the database with python classes.
+
+### Features
+- Fanland is a web aaplication where a user can join fanclubs of their choice. Anyone can create a fanclub and friends can search for it.
+- New messages are highlighted with the yellow line.
+- A image preview feature while sharing an image.
+- Their is a member list in each fanclub's chat-room, where online users are highlighted with a green mrk on their profile pic.
+- Fans can share their thoughts and images in no-time with all the members (RTC support via websockets).
+- Admin can assign a member an admin role.
+- Admins can delete any message and can also ban any user.
+- The banned user will not able to participate in the discussions or anything which can affect other members.
+- A leader is there on every clubpage, indicating most active members in that particular fanclub.
+- A real time notification feature, which shows the admin activity (make admin to other member && ban a user).
+- Attractive design and interactive UI inspired by oour favourite, Spotify.
+- Each person have a unique username.
 
 ## The Fanland
 ![Screenshot from 2021-03-20 18-51-51](https://user-images.githubusercontent.com/55585868/111871250-ed17b200-89ae-11eb-8f2f-3107a3bf5ac9.png)
@@ -144,19 +163,6 @@ npm install
 > Done!
 
 ## Guide to use fanland
-### Features
-- Fanland is a web aaplication where a user can join fanclubs of their choice. Anyone can create a fanclub and friends can search for it.
-- New messages are highlighted with the yellow line.
-- A image preview feature while sharing an image.
-- Their is a member list in each fanclub's chat-room, where online users are highlighted with a green mrk on their profile pic.
-- Fans can share their thoughts and images in no-time with all the members (RTC support via websockets).
-- Admin can assign a member an admin role.
-- Admins can delete any message and can also ban any user.
-- The banned user will not able to participate in the discussions or anything which can affect other members.
-- A leader is there on every clubpage, indicating most active members in that particular fanclub.
-- A real time notification feature, which shows the admin activity (make admin to other member && ban a user).
-- Attractive design and interactive UI inspired by oour favourite, Spotify.
-- Each person have a unique username.
 
 ### First step
 - You first need to create an account, go to `http://localhost:3000/signup` .
