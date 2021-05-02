@@ -9,17 +9,17 @@ The beautiful UI dark theme is used to achieve the attraction of the user. The b
 - Socket server - [Github](https://github.com/maayami/fanland-socket-server)
 
 ### Features
-- Fanland is a web aaplication where a user can join fanclubs of their choice. Anyone can create a fanclub and friends can search for it.
-- New messages are highlighted with the yellow line.
-- A image preview feature while sharing an image.
-- Their is a member list in each fanclub's chat-room, where online users are highlighted with a green mrk on their profile pic.
-- Fans can share their thoughts and images in no-time with all the members (RTC support via websockets).
+- Fanland is a web application where a user can join fan clubs of their choice. Anyone can create a fan club, and others can search for it.
+- New messages are highlighted with a yellow line.
+- An image preview feature while sharing an image.
+- There is a member list in each fan club's chat room, where online users are highlighted with a green mark on their profile pic.
+- Fans can share their thoughts and images in real-time with all the members (RTC support via WebSockets).
 - Admin can assign a member an admin role.
 - Admins can delete any message and can also ban any user.
-- The banned user will not able to participate in the discussions or anything which can affect other members.
-- A leader is there on every clubpage, indicating most active members in that particular fanclub.
-- A real time notification feature, which shows the admin activity (make admin to other member && ban a user).
-- Attractive design and interactive UI inspired by oour favourite, Spotify.
+- The banned user will not be able to participate in the discussions or anything which can affect other members.
+- A leader is there on every club page, indicating the most active members in that particular Fanclub.
+A real-time notification feature shows the admin activity (make admin to other member && ban a user).
+- Attractive design and interactive UI inspired by our favourite, Spotify.
 - Each person have a unique username.
 
 ## The Fanland
